@@ -38,7 +38,7 @@ def perturb_variables(
     distribution = distribution_from_variables(variables)
 
     # get random samples from joint distribution
-    random_sample = distribution.sample(number_perturbations, rule=sample_rule)
+    random_sample = distribution.sample(number_perturbations, rule=sample_rule.value)
     if len(variables) == 1:
         random_sample = random_sample.reshape(-1, 1)
     else:
@@ -59,7 +59,7 @@ def perturb_variables(
 
     if output_directory is not None:
         perturbations.to_netcdf(
-            output_directory / f'perturbation_matrix_{len(variables)}_variable_{sample_rule}.nc'
+            output_directory / f'perturbation_matrix_{len(variables)}_variable_{sample_rule.value}.nc'
         )
 
     return perturbations

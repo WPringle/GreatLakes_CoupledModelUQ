@@ -2,8 +2,9 @@ from pathlib import Path
 from wrf_fvcom.variables import (
     WRF_PBL_SFCLAY, FVCOM_Prandtl
 )
-from wrf_fvcom.perturb import perturb_variables
-
+from wrf_fvcom.perturb import (
+    perturb_variables, SampleRule
+)
 
 if __name__ == '__main__':
     
@@ -15,6 +16,6 @@ if __name__ == '__main__':
     perturbations = perturb_variables(
         variables=variables,
         number_perturbations=19,
-        sample_rule='korobov',
+        sample_rule=SampleRule.KOROBOV,
         output_directory=output_directory,
     )
