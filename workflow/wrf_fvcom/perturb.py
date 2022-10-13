@@ -45,7 +45,7 @@ def perturb_variables(
         random_sample = random_sample.T
         
     run_names = [
-        f'{len(variables)}_variable_{sample_rule}_{index + 1}'
+        f'{len(variables)}_variable_{sample_rule.value}_{index + 1}'
         for index in range(0, number_perturbations)
     ]
     variable_names = [f'{variable.name}' for variable in variables]
