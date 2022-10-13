@@ -65,16 +65,16 @@ class PerturbedVariable(Variable, ABC):
 class WRF_PBL_SFCLAY(PerturbedVariable):
     """
     ``WRF_PBL_SFCLAY`` (``WRF Planetary Bounday Layer and Surface Layer Scheme``)
-    Discrete uniform distribution on [0,2].
-        0: YSU PBL and revised MM5 SFCLAY
-        1: MYJ PBL and MOJ SFCLAY
-        2: MYNN2.5 PBL and MYNN SFCLAY
+    Discrete uniform distribution on [1,3].
+        1: YSU PBL and revised MM5 SFCLAY
+        2: MYJ PBL and MOJ SFCLAY
+        3: MYNN2.5 PBL and MYNN SFCLAY
     """
 
     name = 'WRF PBL_SFCLAY'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=0,
-    upper_bound=2,
+    lower_bound=1,
+    upper_bound=3,
     mean=None,
     standard_deviation=None,
     
@@ -83,10 +83,55 @@ class WRF_PBL_SFCLAY(PerturbedVariable):
             unit=None,
         )
     
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'YSU PBL (=1) and revised MM5 SFCLAY (=1)'
+        elif value == 2:
+            name = 'MYJ PBL (=2) and MOJ SFCLAY (=2)'
+        elif value == 3:
+            name = 'MYNN2.5 PBL (=5) and MYNN SFCLAY (=5)'
+        return name
+
+
+class WRF_WATER_Z0(PerturbedVariable):
+    """
+    ``WRF_WATER_Z0`` (``WRF surface roughness (z0) scheme over water``)
+    Discrete uniform distribution on [1,4].
+        1: COARE 3.0 (Fairall et al., 2003)
+        2: COARE 3.5 (Edson et al., 2013)
+        3: Constant Charnock = 0.0185
+        4: Depth Dependent (Jiménez & Dudhia, 2018)
+    """
+
+    name = 'WRF surface roughness (z0) scheme over water'
+    variable_distribution = VariableDistribution.DISCRETEUNIFORM
+    lower_bound=1,
+    upper_bound=4,
+    mean=None,
+    standard_deviation=None,
+    
+    def __init__(self):
+        super().__init__(
+            unit=None,
+        )
+    
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'COARE 3.0 (Fairall et al., 2003)'
+        elif value == 2:
+            name = 'COARE 3.5 (Edson et al., 2013)'
+        elif value == 3:
+            name = 'Constant Charnock = 0.0185'
+        elif value == 4:
+            name = 'Depth Dependent (Jiménez & Dudhia, 2018)'
+        return name
+    
 
 class FVCOM_SWRadiationAbsorption(PerturbedVariable):
     """
-    ``FVCOM_SWRadiationAbsorption`` (``FVCOM Shortwave radiation absorption``)
+    ``FVCOM_SWRadiationAbsorption`` (``FVCOM Shortwave radiation absorption: R``)
     Uniform distribution on R = [0.74,0.78], then with alpha = (0.74-R)/0.04 -> [0,-1]:
     Z1 = 1.7 + 0.3*alpha -> [1.7,1.4] [m]
     Z2 = 16 + 9.7*alpha -> [16,6.3] [m]
@@ -101,7 +146,7 @@ class FVCOM_SWRadiationAbsorption(PerturbedVariable):
     Z2: HEATING_SHORTWAVE_LENGTHSCALE, The attenuation depth for shorter wavelength component of shortwave irradiance 
     """
     
-    name = 'FVCOM shortwave radiation absorption'
+    name = 'FVCOM shortwave radiation absorption: R'
     variable_distribution = VariableDistribution.UNIFORM
     lower_bound = 0.74,
     upper_bound = 0.78,
