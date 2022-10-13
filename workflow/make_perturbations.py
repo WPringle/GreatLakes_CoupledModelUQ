@@ -1,6 +1,6 @@
 from pathlib import Path
 from wrf_fvcom.variables import (
-    WRF_PBL_SFCLAY, WRF_WATER_Z0,
+    WRF_PBL_SFCLAY, WRF_WATER_Z0, WRF_MP, WRF_RA,
     FVCOM_Prandtl, FVCOM_SWRadiationAbsorption,
 )
 from wrf_fvcom.perturb import (
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     output_directory = Path.cwd() / 'output_files'
 
     variables = [
-        WRF_PBL_SFCLAY, WRF_WATER_Z0, 
+        WRF_PBL_SFCLAY, WRF_WATER_Z0, WRF_MP, WRF_RA, 
         FVCOM_Prandtl, FVCOM_SWRadiationAbsorption,
     ]
     

@@ -64,14 +64,14 @@ class PerturbedVariable(Variable, ABC):
 
 class WRF_PBL_SFCLAY(PerturbedVariable):
     """
-    ``WRF_PBL_SFCLAY`` (``WRF Planetary Bounday Layer and Surface Layer Scheme``)
+    ``WRF_PBL_SFCLAY`` (``WRF planetary bounday layer and surface layer scheme``)
     Discrete uniform distribution on [1,3].
-        1: YSU PBL and revised MM5 SFCLAY
-        2: MYJ PBL and MOJ SFCLAY
-        3: MYNN2.5 PBL and MYNN SFCLAY
+        1: YSU PBL (=1) and revised MM5 SFCLAY (=1)
+        2: MYJ PBL (=2) and MOJ SFCLAY (=2)
+        3: MYNN2.5 PBL (=5) and MYNN SFCLAY (=5)
     """
 
-    name = 'WRF PBL_SFCLAY'
+    name = 'WRF planetary bounday Layer and surface layer scheme'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
     lower_bound=1,
     upper_bound=3,
@@ -127,11 +127,75 @@ class WRF_WATER_Z0(PerturbedVariable):
         elif value == 4:
             name = 'Depth Dependent (Jiménez & Dudhia, 2018)'
         return name
+
+
+class WRF_MP(PerturbedVariable):
+    """
+    ``WRF_MP`` (``WRF microphysics scheme``)
+    Discrete uniform distribution on [1,3].
+        1: Morrison 2-moment 6-class (=10)
+        2: Thompson 2-moment 6-class (=8)
+        3: Milbrandt-Yau 2-moment 7-class (=9)
+    """
+
+    name = 'WRF microphysics scheme'
+    variable_distribution = VariableDistribution.DISCRETEUNIFORM
+    lower_bound=1,
+    upper_bound=3,
+    mean=None,
+    standard_deviation=None,
+    
+    def __init__(self):
+        super().__init__(
+            unit=None,
+        )
+    
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'Morrison 2-moment 6-class (=10)'
+        elif value == 2:
+            name = 'Thompson 2-moment 6-class (=8)'
+        elif value == 3:
+            name = 'Milbrandt-Yau 2-moment 7-class (=9)'
+        return name
+
+
+class WRF_RA(PerturbedVariable):
+    """
+    ``WRF_RA`` (``WRF radiation scheme``)
+    Discrete uniform distribution on [1,3].
+        1: CAM longwave and shortwave (=3,3)
+        2: RRTMG longwave and shortwave (=4,4)
+        3: Goddard longwave and shortwave (=5,5)
+    """
+
+    name = 'WRF radiation scheme'
+    variable_distribution = VariableDistribution.DISCRETEUNIFORM
+    lower_bound=1,
+    upper_bound=3,
+    mean=None,
+    standard_deviation=None,
+    
+    def __init__(self):
+        super().__init__(
+            unit=None,
+        )
+    
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'CAM longwave and shortwave (=3,3)'
+        elif value == 2:
+            name = 'RRTMG longwave and shortwave (=4,4)'
+        elif value == 3:
+            name = 'Goddard longwave and shortwave (=5,5)'
+        return name
     
 
 class FVCOM_SWRadiationAbsorption(PerturbedVariable):
     """
-    ``FVCOM_SWRadiationAbsorption`` (``FVCOM Shortwave radiation absorption: R``)
+    ``FVCOM_SWRadiationAbsorption`` (``FVCOM shortwave radiation absorption: R``)
     Uniform distribution on R = [0.74,0.78], then with alpha = (0.74-R)/0.04 -> [0,-1]:
     Z1 = 1.7 + 0.3*alpha -> [1.7,1.4] [m]
     Z2 = 16 + 9.7*alpha -> [16,6.3] [m]
