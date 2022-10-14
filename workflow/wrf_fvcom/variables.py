@@ -71,7 +71,7 @@ class WRF_PBL_SFCLAY(PerturbedVariable):
         3: MYNN2.5 PBL (=5) and MYNN SFCLAY (=5)
     """
 
-    name = 'WRF planetary bounday Layer and surface layer scheme'
+    name = 'WRF planetary bounday layer and surface layer scheme'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
     lower_bound=1,
     upper_bound=3,
@@ -97,17 +97,16 @@ class WRF_PBL_SFCLAY(PerturbedVariable):
 class WRF_WaterZ0(PerturbedVariable):
     """
     ``WRF_WaterZ0`` (``WRF surface roughness (z0) scheme over water``)
-    Discrete uniform distribution on [1,4].
-        1: COARE 3.0 (Fairall et al., 2003)
-        2: COARE 3.5 (Edson et al., 2013)
-        3: Constant Charnock = 0.0185
-        4: Depth Dependent (Jiménez & Dudhia, 2018)
+    Discrete uniform distribution on [1,3].
+        1: COARE 3.5 (Edson et al., 2013)
+        2: Constant Charnock = 0.0185
+        3: Depth Dependent (Jiménez & Dudhia, 2018)
     """
 
     name = 'WRF surface roughness (z0) scheme over water'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
     lower_bound=1,
-    upper_bound=4,
+    upper_bound=3,
     mean=None,
     standard_deviation=None,
     
@@ -119,12 +118,10 @@ class WRF_WaterZ0(PerturbedVariable):
     @classmethod
     def return_scheme_name(self,value) -> str:
         if value == 1:
-            name = 'COARE 3.0 (Fairall et al., 2003)'
-        elif value == 2:
             name = 'COARE 3.5 (Edson et al., 2013)'
-        elif value == 3:
+        elif value == 2:
             name = 'Constant Charnock = 0.0185'
-        elif value == 4:
+        elif value == 3:
             name = 'Depth Dependent (Jiménez & Dudhia, 2018)'
         return name
 
