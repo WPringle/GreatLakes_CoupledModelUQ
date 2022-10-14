@@ -94,9 +94,9 @@ class WRF_PBL_SFCLAY(PerturbedVariable):
         return name
 
 
-class WRF_WATER_Z0(PerturbedVariable):
+class WRF_WaterZ0(PerturbedVariable):
     """
-    ``WRF_WATER_Z0`` (``WRF surface roughness (z0) scheme over water``)
+    ``WRF_WaterZ0`` (``WRF surface roughness (z0) scheme over water``)
     Discrete uniform distribution on [1,4].
         1: COARE 3.0 (Fairall et al., 2003)
         2: COARE 3.5 (Edson et al., 2013)
@@ -191,6 +191,38 @@ class WRF_RA(PerturbedVariable):
         elif value == 3:
             name = 'Goddard longwave and shortwave (=5,5)'
         return name
+
+
+class FVCOM_VerticalMixing(PerturbedVariable):
+    """
+    ``FVCOM_VerticalMixing`` (``FVCOM vertical mixing scheme``)
+    Discrete uniform distribution on [1,3].
+        1: FVCOM MY-2.5 for Great Lakes (=1) 
+        2: GOTM MY-2.5 (=2)
+        3: GOTM k-epsilon (=3)
+    """
+
+    name = 'FVCOM vertical mixing scheme'
+    variable_distribution = VariableDistribution.DISCRETEUNIFORM
+    lower_bound=1,
+    upper_bound=3,
+    mean=None,
+    standard_deviation=None,
+    
+    def __init__(self):
+        super().__init__(
+            unit=None,
+        )
+    
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'FVCOM MY-2.5 for Great Lakes'
+        elif value == 2:
+            name = 'GOTM MY-2.5'
+        elif value == 3:
+            name = 'GOTM k-epsilon'
+        return name
     
 
 class FVCOM_SWRadiationAbsorption(PerturbedVariable):
@@ -252,3 +284,32 @@ class FVCOM_Prandtl(PerturbedVariable):
         super().__init__(
             unit=None,
         )
+
+
+class FVCOM_WindStress(PerturbedVariable):
+    """
+    ``FVCOM_WindStress`` (``FVCOM bulk wind stress formulation``)
+    Discrete uniform distribution on [1,2].
+        1: Large and Pond (1981)
+        2: Andreas et al. (2012)
+    """
+
+    name = 'FVCOM bulk wind stress formulation'
+    variable_distribution = VariableDistribution.DISCRETEUNIFORM
+    lower_bound=1,
+    upper_bound=2,
+    mean=None,
+    standard_deviation=None,
+    
+    def __init__(self):
+        super().__init__(
+            unit=None,
+        )
+    
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'Large and Pond (1981)'
+        elif value == 2:
+            name = 'Andreas et al. (2012)'
+        return name
