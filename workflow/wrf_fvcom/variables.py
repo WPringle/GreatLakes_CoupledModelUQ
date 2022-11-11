@@ -130,9 +130,9 @@ class WRF_MP(PerturbedVariable):
     """
     ``WRF_MP`` (``WRF microphysics scheme``)
     Discrete uniform distribution on [1,3].
-        1: Goddard 4-ice 6-class (=7)
-        2: Morrison 2-moment 6-class (=10)
-        3: Thompson 2-moment 6-class (=8)
+        1: Morrison 2-moment 6-class (=10)
+        2: Thompson 2-moment 6-class (=8)
+        3: Goddard 4-ice 6-class (=7)
     """
 
     name = 'WRF microphysics scheme'
@@ -154,7 +154,7 @@ class WRF_MP(PerturbedVariable):
         elif value == 2:
             name = 'Thompson 2-moment 6-class (=8)'
         elif value == 3:
-            name = 'Milbrandt-Yau 2-moment 7-class (=9)'
+            name = 'Goddard 4-ice 6-class (=7)'
         return name
 
 
@@ -193,16 +193,15 @@ class WRF_RA(PerturbedVariable):
 class FVCOM_VerticalMixing(PerturbedVariable):
     """
     ``FVCOM_VerticalMixing`` (``FVCOM vertical mixing scheme``)
-    Discrete uniform distribution on [1,3].
+    Discrete uniform distribution on [1,2].
         1: FVCOM MY-2.5 for Great Lakes (=1) 
-        2: GOTM MY-2.5 (=2)
-        3: GOTM k-epsilon (=3)
+        2: GOTM k-epsilon (=2)
     """
 
     name = 'FVCOM vertical mixing scheme'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
     lower_bound=1,
-    upper_bound=3,
+    upper_bound=2,
     mean=None,
     standard_deviation=None,
     
@@ -216,9 +215,36 @@ class FVCOM_VerticalMixing(PerturbedVariable):
         if value == 1:
             name = 'FVCOM MY-2.5 for Great Lakes'
         elif value == 2:
-            name = 'GOTM MY-2.5'
-        elif value == 3:
             name = 'GOTM k-epsilon'
+        return name
+
+
+class FVCOM_WindStress(PerturbedVariable):
+    """
+    ``FVCOM_WindStress`` (``FVCOM bulk wind stress formulation``)
+    Discrete uniform distribution on [1,2].
+        1: Large and Pond (1981)
+        2: Andreas et al. (2012)
+    """
+
+    name = 'FVCOM bulk wind stress formulation'
+    variable_distribution = VariableDistribution.DISCRETEUNIFORM
+    lower_bound=1,
+    upper_bound=2,
+    mean=None,
+    standard_deviation=None,
+    
+    def __init__(self):
+        super().__init__(
+            unit=None,
+        )
+    
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'Large and Pond (1981)'
+        elif value == 2:
+            name = 'Andreas et al. (2012)'
         return name
     
 
@@ -281,32 +307,3 @@ class FVCOM_Prandtl(PerturbedVariable):
         super().__init__(
             unit=None,
         )
-
-
-class FVCOM_WindStress(PerturbedVariable):
-    """
-    ``FVCOM_WindStress`` (``FVCOM bulk wind stress formulation``)
-    Discrete uniform distribution on [1,2].
-        1: Large and Pond (1981)
-        2: Andreas et al. (2012)
-    """
-
-    name = 'FVCOM bulk wind stress formulation'
-    variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=2,
-    mean=None,
-    standard_deviation=None,
-    
-    def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
-    @classmethod
-    def return_scheme_name(self,value) -> str:
-        if value == 1:
-            name = 'Large and Pond (1981)'
-        elif value == 2:
-            name = 'Andreas et al. (2012)'
-        return name
