@@ -130,9 +130,9 @@ class WRF_MP(PerturbedVariable):
     """
     ``WRF_MP`` (``WRF microphysics scheme``)
     Discrete uniform distribution on [1,3].
-        1: Morrison 2-moment 6-class (=10)
-        2: Thompson 2-moment 6-class (=8)
-        3: Milbrandt-Yau 2-moment 7-class (=9)
+        1: Goddard 4-ice 6-class (=7)
+        2: Morrison 2-moment 6-class (=10)
+        3: Thompson 2-moment 6-class (=8)
     """
 
     name = 'WRF microphysics scheme'
