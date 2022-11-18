@@ -132,7 +132,7 @@ class WRF_MP(PerturbedVariable):
     Discrete uniform distribution on [1,3].
         1: Morrison 2-moment 6-class (=10)
         2: Thompson 2-moment 6-class (=8)
-        3: Goddard 4-ice 6-class (=7)
+        3: WSM 6-class graupel scheme (=6)
     """
 
     name = 'WRF microphysics scheme'
@@ -154,7 +154,7 @@ class WRF_MP(PerturbedVariable):
         elif value == 2:
             name = 'Thompson 2-moment 6-class (=8)'
         elif value == 3:
-            name = 'Goddard 4-ice 6-class (=7)'
+            name = 'WSM 6-class graupel scheme (=6)'
         return name
 
 
@@ -162,7 +162,7 @@ class WRF_RA(PerturbedVariable):
     """
     ``WRF_RA`` (``WRF radiation scheme``)
     Discrete uniform distribution on [1,3].
-        1: CAM longwave and shortwave (=3,3)
+        1: RRTM longwave and CAM shortwave (=1,3)
         2: RRTMG longwave and shortwave (=4,4)
         3: Goddard longwave and shortwave (=5,5)
     """
@@ -182,7 +182,7 @@ class WRF_RA(PerturbedVariable):
     @classmethod
     def return_scheme_name(self,value) -> str:
         if value == 1:
-            name = 'CAM longwave and shortwave (=3,3)'
+            name = 'RRTM longwave and CAM shortwave (=1,3)'
         elif value == 2:
             name = 'RRTMG longwave and shortwave (=4,4)'
         elif value == 3:
