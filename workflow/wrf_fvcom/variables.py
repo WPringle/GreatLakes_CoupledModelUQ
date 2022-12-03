@@ -190,6 +190,35 @@ class WRF_RA(PerturbedVariable):
         return name
 
 
+class WRF_LM(PerturbedVariable):
+    """
+    ``WRF_LM`` (``WRF land model (surface physics)``)
+    Discrete uniform distribution on [1,2].
+        1: Noah (=2)
+        2: Noah MP (=4)
+    """
+
+    name = 'WRF land model (surface physics)'
+    variable_distribution = VariableDistribution.DISCRETEUNIFORM
+    lower_bound=1,
+    upper_bound=2,
+    mean=None,
+    standard_deviation=None,
+    
+    def __init__(self):
+        super().__init__(
+            unit=None,
+        )
+    
+    @classmethod
+    def return_scheme_name(self,value) -> str:
+        if value == 1:
+            name = 'Noah (=2)'
+        elif value == 2:
+            name = 'Noah MP (=4)'
+        return name
+
+
 class FVCOM_VerticalMixing(PerturbedVariable):
     """
     ``FVCOM_VerticalMixing`` (``FVCOM vertical mixing scheme``)

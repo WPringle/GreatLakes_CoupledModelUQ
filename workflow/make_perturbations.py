@@ -1,6 +1,6 @@
 from pathlib import Path
 from wrf_fvcom.variables import (
-    WRF_PBL_SFCLAY, WRF_WaterZ0, WRF_MP, WRF_RA,
+    WRF_PBL_SFCLAY, WRF_WaterZ0, WRF_MP, WRF_RA, WRF_LM,
     FVCOM_Prandtl, FVCOM_SWRadiationAbsorption,
     FVCOM_VerticalMixing, FVCOM_WindStress,
 )
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     variables = [
         WRF_PBL_SFCLAY, WRF_WaterZ0, WRF_MP, WRF_RA,
         FVCOM_VerticalMixing, FVCOM_WindStress, 
-        FVCOM_Prandtl, FVCOM_SWRadiationAbsorption,
+        FVCOM_Prandtl, FVCOM_SWRadiationAbsorption, WRF_LM,
     ]
     
     # calling the perturb_variables function (output is written inside the function)
