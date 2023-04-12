@@ -8,16 +8,17 @@ from wrf_fvcom.variables import PerturbedVariable
 
 class SampleRule(Enum):
     KOROBOV = 'korobov'
-    RANDOM  = 'random'
+    RANDOM = 'random'
     SOBOL = 'sobol'
     LATINHYPERCUBE = 'latin_hypercube'
+
 
 def distribution_from_variables(variables: List[PerturbedVariable]) -> chaospy.Distribution:
     """
     :param variables: names of random variables we are perturbing
     :return: chaospy joint distribution encompassing variables
     """
-    
+
     return chaospy.J(*(variable.chaospy_distribution() for variable in variables))
 
 
@@ -43,7 +44,7 @@ def perturb_variables(
         random_sample = random_sample.reshape(-1, 1)
     else:
         random_sample = random_sample.T
-        
+
     run_names = [
         f'{len(variables)}_variable_{sample_rule.value}_{index + 1}'
         for index in range(0, number_perturbations)
@@ -59,7 +60,8 @@ def perturb_variables(
 
     if output_directory is not None:
         perturbations.to_netcdf(
-            output_directory / f'perturbation_matrix_{len(variables)}_variable_{sample_rule.value}.nc'
+            output_directory
+            / f'perturbation_matrix_{len(variables)}variables_{sample_rule.value}{number_perturbations}.nc'
         )
 
     return perturbations

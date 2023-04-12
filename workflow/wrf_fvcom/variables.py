@@ -4,13 +4,14 @@ from abc import ABC
 from enum import Enum
 from typing import Union
 from pint import Quantity
+
 units = pint.UnitRegistry()
 
 
 class VariableDistribution(Enum):
-    GAUSSIAN = 'gaussian'
-    UNIFORM = 'uniform'
-    DISCRETEUNIFORM = 'discreteuniform'
+    GAUSSIAN = chaospy.Normal
+    UNIFORM = chaospy.Uniform
+    DISCRETEUNIFORM = chaospy.DiscreteUniform
 
 
 class Variable(ABC):
@@ -42,8 +43,7 @@ class PerturbedVariable(Variable, ABC):
     standard_deviaton: Quantity
 
     def __init__(
-        self,
-        unit: pint.Unit = None,
+        self, unit: pint.Unit = None,
     ):
         super().__init__(unit=unit)
 
@@ -55,7 +55,9 @@ class PerturbedVariable(Variable, ABC):
         elif self.variable_distribution == VariableDistribution.UNIFORM:
             distribution = chaospy.Uniform(lower=self.lower_bound, upper=self.upper_bound)
         elif self.variable_distribution == VariableDistribution.DISCRETEUNIFORM:
-            distribution = chaospy.DiscreteUniform(lower=self.lower_bound, upper=self.upper_bound)
+            distribution = chaospy.DiscreteUniform(
+                lower=self.lower_bound, upper=self.upper_bound
+            )
         else:
             raise ValueError(f'perturbation type {self.variable_distribution} not recognized')
 
@@ -73,18 +75,16 @@ class WRF_PBL_SFCLAY(PerturbedVariable):
 
     name = 'WRF planetary bounday layer and surface layer scheme'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=3,
-    mean=None,
-    standard_deviation=None,
-    
+    lower_bound = (1,)
+    upper_bound = (3,)
+    mean = (None,)
+    standard_deviation = (None,)
+
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
+        super().__init__(unit=None,)
+
     @classmethod
-    def return_scheme_name(self,value) -> str:
+    def return_scheme_name(self, value) -> str:
         if value == 1:
             name = 'YSU PBL (=1) and revised MM5 SFCLAY (=1)'
         elif value == 2:
@@ -105,18 +105,16 @@ class WRF_WaterZ0(PerturbedVariable):
 
     name = 'WRF surface roughness (z0) scheme over water'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=3,
-    mean=None,
-    standard_deviation=None,
-    
+    lower_bound = (1,)
+    upper_bound = (3,)
+    mean = (None,)
+    standard_deviation = (None,)
+
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
+        super().__init__(unit=None,)
+
     @classmethod
-    def return_scheme_name(self,value) -> str:
+    def return_scheme_name(self, value) -> str:
         if value == 1:
             name = 'COARE 3.5 (Edson et al., 2013)'
         elif value == 2:
@@ -137,18 +135,16 @@ class WRF_MP(PerturbedVariable):
 
     name = 'WRF microphysics scheme'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=3,
-    mean=None,
-    standard_deviation=None,
-    
+    lower_bound = (1,)
+    upper_bound = (3,)
+    mean = (None,)
+    standard_deviation = (None,)
+
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
+        super().__init__(unit=None,)
+
     @classmethod
-    def return_scheme_name(self,value) -> str:
+    def return_scheme_name(self, value) -> str:
         if value == 1:
             name = 'Morrison 2-moment 6-class (=10)'
         elif value == 2:
@@ -169,18 +165,16 @@ class WRF_RA(PerturbedVariable):
 
     name = 'WRF radiation scheme'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=3,
-    mean=None,
-    standard_deviation=None,
-    
+    lower_bound = (1,)
+    upper_bound = (3,)
+    mean = (None,)
+    standard_deviation = (None,)
+
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
+        super().__init__(unit=None,)
+
     @classmethod
-    def return_scheme_name(self,value) -> str:
+    def return_scheme_name(self, value) -> str:
         if value == 1:
             name = 'RRTM longwave and CAM shortwave (=1,3)'
         elif value == 2:
@@ -200,18 +194,16 @@ class WRF_LM(PerturbedVariable):
 
     name = 'WRF land model (surface physics)'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=2,
-    mean=None,
-    standard_deviation=None,
-    
+    lower_bound = (1,)
+    upper_bound = (2,)
+    mean = (None,)
+    standard_deviation = (None,)
+
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
+        super().__init__(unit=None,)
+
     @classmethod
-    def return_scheme_name(self,value) -> str:
+    def return_scheme_name(self, value) -> str:
         if value == 1:
             name = 'Noah (=2)'
         elif value == 2:
@@ -229,18 +221,16 @@ class FVCOM_VerticalMixing(PerturbedVariable):
 
     name = 'FVCOM vertical mixing scheme'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=2,
-    mean=None,
-    standard_deviation=None,
-    
+    lower_bound = (1,)
+    upper_bound = (2,)
+    mean = (None,)
+    standard_deviation = (None,)
+
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
+        super().__init__(unit=None,)
+
     @classmethod
-    def return_scheme_name(self,value) -> str:
+    def return_scheme_name(self, value) -> str:
         if value == 1:
             name = 'FVCOM MY-2.5 for Great Lakes'
         elif value == 2:
@@ -258,24 +248,22 @@ class FVCOM_WindStress(PerturbedVariable):
 
     name = 'FVCOM bulk wind stress formulation'
     variable_distribution = VariableDistribution.DISCRETEUNIFORM
-    lower_bound=1,
-    upper_bound=2,
-    mean=None,
-    standard_deviation=None,
-    
+    lower_bound = (1,)
+    upper_bound = (2,)
+    mean = (None,)
+    standard_deviation = (None,)
+
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
+        super().__init__(unit=None,)
+
     @classmethod
-    def return_scheme_name(self,value) -> str:
+    def return_scheme_name(self, value) -> str:
         if value == 1:
             name = 'Large and Pond (1981)'
         elif value == 2:
             name = 'Andreas et al. (2012)'
         return name
-    
+
 
 class FVCOM_SWRadiationAbsorption(PerturbedVariable):
     """
@@ -293,30 +281,28 @@ class FVCOM_SWRadiationAbsorption(PerturbedVariable):
     Z1: HEATING_LONGWAVE_LENGTHSCALE, The attenuation depth for the longer wavelength component of shortwave irradiance
     Z2: HEATING_SHORTWAVE_LENGTHSCALE, The attenuation depth for shorter wavelength component of shortwave irradiance 
     """
-    
+
     name = 'FVCOM shortwave radiation absorption: R'
     variable_distribution = VariableDistribution.UNIFORM
-    lower_bound = 0.74,
-    upper_bound = 0.78,
-    mean = None,
-    standard_deviation = None,
+    lower_bound = (0.74,)
+    upper_bound = (0.78,)
+    mean = (None,)
+    standard_deviation = (None,)
 
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
-    
-    @classmethod
-    def calc_Z1(self,R) -> float:
-        alpha = (0.74-R)/0.04
-        Z1 = 1.7 + 0.3*alpha
-        return Z1 #[m]
+        super().__init__(unit=None,)
 
     @classmethod
-    def calc_Z2(self,R) -> float:
-        alpha = (0.74-R)/0.04
-        Z2 = 16 + 9.7*alpha
-        return Z2 #[m]
+    def calc_Z1(self, R) -> float:
+        alpha = (0.74 - R) / 0.04
+        Z1 = 1.7 + 0.3 * alpha
+        return Z1  # [m]
+
+    @classmethod
+    def calc_Z2(self, R) -> float:
+        alpha = (0.74 - R) / 0.04
+        Z2 = 16 + 9.7 * alpha
+        return Z2  # [m]
 
 
 class FVCOM_Prandtl(PerturbedVariable):
@@ -324,15 +310,13 @@ class FVCOM_Prandtl(PerturbedVariable):
     ``FVCOM_Prandtl`` (``FVCOM Prandlt Number``)
     Uniform distribution on [1,10] of the horizontal=vertical Prandtl number.
     """
-    
+
     name = 'FVCOM Prandtl'
     variable_distribution = VariableDistribution.UNIFORM
-    lower_bound = 1.0,
-    upper_bound = 10.0,
-    mean = None,
-    standard_deviation = None,
+    lower_bound = (1.0,)
+    upper_bound = (10.0,)
+    mean = (None,)
+    standard_deviation = (None,)
 
     def __init__(self):
-        super().__init__(
-            unit=None,
-        )
+        super().__init__(unit=None,)
