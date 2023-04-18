@@ -104,40 +104,24 @@ def transform_perturbation_matrix(
 
     # transform the categorical values
     enc = rule.value
-    variable_matrix_cat = enc.fit_transform(categorical_matrix).toarray()
+    variable_matrix = enc.fit_transform(categorical_matrix).toarray()
 
     scheme_names = np.empty(0)
     for schemes in enc.categories_:
         scheme_names = np.append(scheme_names, schemes)
 
-    # now format into the output with non-categorical added on if present
-    variable_matrix = np.empty(
-        (variable_matrix_cat.shape[0], variable_matrix_cat.shape[1] + num_notcat_vars)
-    )
-    vdxc = 0
-    css = 0
-    cee = 0
-    vss = 0
-    vee = 0
-    for variable_name in variable_names:
-        variable = PerturbedVariable.class_from_name(variable_name)
-        if variable.variable_distribution == VariableDistribution.DISCRETEUNIFORM:
-            lc = len(enc.categories_[vdxc])
-            cee = css + lc
-            vee = vss + lc
-            variable_matrix[:, vss:vee] = variable_matrix_cat[:, css:cee]
-            css = cee
-            vss = vee
-            vdxc += 1
-        else:
-            pvalues = perturbation_matrix.sel(variable=variable_name)
-            if scale:
-                pvalues = (pvalues - variable.lower_bound) / (
-                    variable.upper_bound - variable.lower_bound
-                )
-            variable_matrix[:, vss] = pvalues
-            scheme_names = np.append(scheme_names, variable_name)
-            vss += 1
+    # now add on the non-categorial values if num_notcat_vars > 0
+    if num_notcat_vars > 0:
+        for variable_name in variable_names:
+            variable = PerturbedVariable.class_from_name(variable_name)
+            if variable.variable_distribution != VariableDistribution.DISCRETEUNIFORM:
+                pvalues = perturbation_matrix.sel(variable=variable_name).values
+                if scale:
+                    pvalues = (pvalues - variable.lower_bound) / (
+                        variable.upper_bound - variable.lower_bound
+                    )
+                variable_matrix = np.append(variable_matrix, pvalues.reshape(-1, 1), axis=1)
+                scheme_names = np.append(scheme_names, variable_name)
 
     return xr.DataArray(
         data=variable_matrix,
