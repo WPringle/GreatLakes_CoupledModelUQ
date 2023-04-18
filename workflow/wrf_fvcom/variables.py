@@ -63,8 +63,7 @@ class PerturbedVariable(Variable, ABC):
         return distribution
 
     @classmethod
-    def class_from_name(self, name):
-        not_found = True
+    def class_from_variable_name(self, name):
         variable_classes = [
             WRF_PBL_SFCLAY,
             WRF_WaterZ0,
@@ -78,12 +77,33 @@ class PerturbedVariable(Variable, ABC):
         ]
         for variable_class in variable_classes:
             if variable_class.name == name:
-                not_found = False
-                break
-        if not_found:
-            raise ValueError(f'{name} not recognized')
+                return variable_class
+        raise ValueError(f'{name} not recognized')
 
-        return variable_class
+    @classmethod
+    def class_from_scheme_name(self, name):
+        variable_classes = [
+            WRF_PBL_SFCLAY,
+            WRF_WaterZ0,
+            WRF_MP,
+            WRF_RA,
+            WRF_LM,
+            FVCOM_WindStress,
+            FVCOM_VerticalMixing,
+            FVCOM_Prandtl,
+            FVCOM_SWRadiationAbsorption,
+        ]
+        for variable_class in variable_classes:
+            if variable_class.variable_distribution == VariableDistribution.DISCRETEUNIFORM:
+                for value in range(variable_class.lower_bound, variable_class.upper_bound + 1):
+                    scheme_name = variable_class.return_scheme_name(value)
+                    if scheme_name == name:
+                        return variable_class
+            else:
+                if variable_class.name == name:
+                    return variable_class
+
+        raise ValueError(f'{name} not recognized')
 
 
 class WRF_PBL_SFCLAY(PerturbedVariable):
