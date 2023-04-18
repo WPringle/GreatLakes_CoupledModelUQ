@@ -6,6 +6,7 @@ from os import PathLike
 from typing import List
 from wrf_fvcom.variables import PerturbedVariable, VariableDistribution
 from sklearn.preprocessing import OneHotEncoder
+from skopt.space import Categorical, Real
 
 
 class SampleRule(Enum):
@@ -77,11 +78,15 @@ def transform_perturbation_matrix(
     perturbation_matrix: xr.DataArray,
     rule: TransformRule = TransformRule.ONEHOT,
     scale: bool = True,
+    output_type: str = 'matrix',
 ) -> xr.DataArray:
     """
     :param perturbation_matrix: DataArray of the perturbation where categorical parameterizations are given in ordinal integers
     :param rule: rule for the transformation, see TransformRule class and sklearn preprocessing class. Only ONEHOT = OneHotEncoder() has been implemented.
     :param scale: scale non-categorical values to [0,1]?
+    :param output_type:
+        "matrix" - DataArray of transformed perturbation matrix, or
+        "space"  - List of skopt.space types (Categorical or Real in range)
     :return: DataArray of the transformed perturbation_matrix
     """
 
@@ -102,13 +107,19 @@ def transform_perturbation_matrix(
                 num_notcat_vars += 1
         categorical_matrix.append(variable_vector)
 
-    # transform the categorical values
-    enc = rule.value
-    variable_matrix = enc.fit_transform(categorical_matrix).toarray()
-
     scheme_names = np.empty(0)
-    for schemes in enc.categories_:
-        scheme_names = np.append(scheme_names, schemes)
+    variable_matrix = np.empty(0)
+    space = []
+    # transform the categorical values if there are any
+    if len(categorical_matrix) > 0:
+        enc = rule.value
+        variable_matrix = enc.fit_transform(categorical_matrix).toarray()
+
+        for schemes in enc.categories_:
+            scheme_names = np.append(scheme_names, schemes)
+            variable = PerturbedVariable.class_from_scheme_name(schemes[0])
+            scheme_list = Categorical([scheme for scheme in schemes], name=variable.name)
+            space.append(scheme_list)
 
     # now add on the non-categorial values if num_notcat_vars > 0
     if num_notcat_vars > 0:
@@ -122,10 +133,19 @@ def transform_perturbation_matrix(
                     )
                 variable_matrix = np.append(variable_matrix, pvalues.reshape(-1, 1), axis=1)
                 scheme_names = np.append(scheme_names, variable_name)
+                parameter_range = Real(
+                    variable.lower_bound, variable.upper_bound, name=variable.name
+                )
+                space.append(parameter_range)
 
-    return xr.DataArray(
-        data=variable_matrix,
-        coords={'run': runs, 'scheme': scheme_names},
-        dims=('run', 'scheme'),
-        name='transformed_perturbation_matrix',
-    )
+    if output_type == 'matrix':
+        return xr.DataArray(
+            data=variable_matrix,
+            coords={'run': runs, 'scheme': scheme_names},
+            dims=('run', 'scheme'),
+            name='transformed_perturbation_matrix',
+        )
+    elif output_type == 'space':
+        return space
+    else:
+        raise ValueError(f'{output_type} not recognized. must be "matrix" or "space"')

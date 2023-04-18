@@ -57,9 +57,12 @@ if __name__ == '__main__':
         Z1.to_netcdf(output_directory / f'{file_prefix}_Z1.nc')
         Z2.to_netcdf(output_directory / f'{file_prefix}_Z2.nc')
 
-    # demonstrating the transformation of peturbations using OneHotEncoding
+    # demonstrating the transformation of perturbations using OneHotEncoding
     variable_matrix = transform_perturbation_matrix(perturbations)
 
     # demonstrating retrieval of variable class from scheme names
     for scheme in variable_matrix['scheme']:
         variable_class = PerturbedVariable.class_from_scheme_name(scheme)
+
+    # demonstrating output of transformed perturbations in list of skopt.space types
+    variable_space = transform_perturbation_matrix(perturbations, output_type='space')
