@@ -94,7 +94,7 @@ def transform_perturbation_matrix(
         variable_vector = []
         num_notcat_vars = 0
         for variable_name in variable_names:
-            variable = PerturbedVariable.class_from_name(variable_name)
+            variable = PerturbedVariable.class_from_variable_name(variable_name)
             if variable.variable_distribution == VariableDistribution.DISCRETEUNIFORM:
                 scheme_name = variable.return_scheme_name(pvalues.sel(variable=variable_name))
                 variable_vector.append(scheme_name)
@@ -113,7 +113,7 @@ def transform_perturbation_matrix(
     # now add on the non-categorial values if num_notcat_vars > 0
     if num_notcat_vars > 0:
         for variable_name in variable_names:
-            variable = PerturbedVariable.class_from_name(variable_name)
+            variable = PerturbedVariable.class_from_variable_name(variable_name)
             if variable.variable_distribution != VariableDistribution.DISCRETEUNIFORM:
                 pvalues = perturbation_matrix.sel(variable=variable_name).values
                 if scale:
@@ -125,7 +125,7 @@ def transform_perturbation_matrix(
 
     return xr.DataArray(
         data=variable_matrix,
-        coords={'run': runs, 'variable': scheme_names},
-        dims=('run', 'variable'),
+        coords={'run': runs, 'scheme': scheme_names},
+        dims=('run', 'scheme'),
         name='transformed_perturbation_matrix',
     )
