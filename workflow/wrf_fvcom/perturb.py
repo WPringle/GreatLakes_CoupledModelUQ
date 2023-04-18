@@ -3,7 +3,7 @@ import xarray as xr
 import numpy as np
 from enum import Enum
 from os import PathLike
-from typing import List
+from typing import List, Union
 from wrf_fvcom.variables import PerturbedVariable, VariableDistribution
 from sklearn.preprocessing import OneHotEncoder
 from skopt.space import Categorical, Real
@@ -149,3 +149,28 @@ def transform_perturbation_matrix(
         return space
     else:
         raise ValueError(f'{output_type} not recognized. must be "matrix" or "space"')
+
+
+def parameter_dict_to_perturbation_vector(
+    param_dict: dict,
+) -> xr.DataArray:
+    """
+    :param parameter_dict: Dictionary of parameterization schemes and parameters
+    :return: DataArray of the perturbation_vector (integers and floats)
+    """
+
+    runs = 0
+    perturbation_vector = np.empty((1,len(param_dict)))
+    for sdx, scheme in enumerate(param_dict):
+        variable = PerturbedVariable.class_from_scheme_name(scheme)
+        if variable.variable_distribution == VariableDistribution.DISCRETEUNIFORM:
+            perturbation_vector[sdx] = scheme
+        else:
+            perturbation_vector[sdx] = scheme
+
+    return xr.DataArray(
+        data=perturbation_vector,
+        coords={'run': runs, 'variable': list(param_dict.keys())},
+        dims=('run', 'variable'),
+        name='perturbation_vector',
+    )
