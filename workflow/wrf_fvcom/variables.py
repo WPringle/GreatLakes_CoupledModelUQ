@@ -30,7 +30,7 @@ class Variable(ABC):
     def unit(self, unit: Union[str, pint.Unit]):
         if not isinstance(unit, pint.Unit):
             if unit is None:
-                unit = ''
+                unit = ""
             unit = units.Unit(unit)
         self.__unit = unit
 
@@ -49,7 +49,6 @@ class PerturbedVariable(Variable, ABC):
 
     @classmethod
     def chaospy_distribution(self) -> chaospy.Distribution:
-
         if self.variable_distribution == VariableDistribution.GAUSSIAN:
             distribution = chaospy.Normal(mu=self.mean, sigma=self.standard_deviation)
         elif self.variable_distribution == VariableDistribution.UNIFORM:
@@ -62,6 +61,29 @@ class PerturbedVariable(Variable, ABC):
             raise ValueError(f'perturbation type {self.variable_distribution} not recognized')
 
         return distribution
+
+    @classmethod
+    def class_from_name(self, name):
+        not_found = True
+        variable_classes = [
+            WRF_PBL_SFCLAY,
+            WRF_WaterZ0,
+            WRF_MP,
+            WRF_RA,
+            WRF_LM,
+            FVCOM_WindStress,
+            FVCOM_VerticalMixing,
+            FVCOM_Prandtl,
+            FVCOM_SWRadiationAbsorption,
+        ]
+        for variable_class in variable_classes:
+            if variable_class.name == name:
+                not_found = False
+                break
+        if not_found:
+            raise ValueError(f'{name} not recognized')
+
+        return variable_class
 
 
 class WRF_PBL_SFCLAY(PerturbedVariable):
@@ -215,7 +237,7 @@ class FVCOM_VerticalMixing(PerturbedVariable):
     """
     ``FVCOM_VerticalMixing`` (``FVCOM vertical mixing scheme``)
     Discrete uniform distribution on [1,2].
-        1: FVCOM MY-2.5 for Great Lakes (=1) 
+        1: FVCOM MY-2.5 for Great Lakes (=1)
         2: GOTM k-epsilon (=2)
     """
 
@@ -271,15 +293,15 @@ class FVCOM_SWRadiationAbsorption(PerturbedVariable):
     Uniform distribution on R = [0.74,0.78], then with alpha = (0.74-R)/0.04 -> [0,-1]:
     Z1 = 1.7 + 0.3*alpha -> [1.7,1.4] [m]
     Z2 = 16 + 9.7*alpha -> [16,6.3] [m]
-     
+
     Upper bound is the values given in FVCOM User Manual which is low water quality type III,
     and lower bound is from Paulson & Simpson (1977). https://doi.org/10.1175/1520-0485(1977)007<0952:IMITUO>2.0.CO;2
-    which corresponds to type IA (pretty clear water).   
+    which corresponds to type IA (pretty clear water).
 
     Definitions:
     R: HEATING_LONGWAVE_PERCTAGE, The fraction of the total shortwave flux associated with the longer wavelength irradiance
     Z1: HEATING_LONGWAVE_LENGTHSCALE, The attenuation depth for the longer wavelength component of shortwave irradiance
-    Z2: HEATING_SHORTWAVE_LENGTHSCALE, The attenuation depth for shorter wavelength component of shortwave irradiance 
+    Z2: HEATING_SHORTWAVE_LENGTHSCALE, The attenuation depth for shorter wavelength component of shortwave irradiance
     """
 
     name = 'FVCOM shortwave radiation absorption: R'
