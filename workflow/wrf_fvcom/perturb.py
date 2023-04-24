@@ -151,25 +151,26 @@ def transform_perturbation_matrix(
         raise ValueError(f'{output_type} not recognized. must be "matrix" or "space"')
 
 
-def parameter_dict_to_perturbation_vector(
-    param_dict: dict,
-) -> xr.DataArray:
+def parameter_dict_to_perturbation_vector(param_dict: dict) -> xr.DataArray:
     """
     :param parameter_dict: Dictionary of parameterization schemes and parameters
     :return: DataArray of the perturbation_vector (integers and floats)
     """
 
-    runs = 0
-    perturbation_vector = np.empty((1,len(param_dict)))
-    for sdx, scheme in enumerate(param_dict):
-        variable = PerturbedVariable.class_from_scheme_name(scheme)
+    runs = np.zeros(1)
+    perturbation_vector = np.empty(len(param_dict))
+    for vdx, var_name in enumerate(param_dict):
+        variable = PerturbedVariable.class_from_variable_name(var_name)
         if variable.variable_distribution == VariableDistribution.DISCRETEUNIFORM:
-            perturbation_vector[sdx] = scheme
+            for value in range(variable.lower_bound, variable.upper_bound + 1):
+                scheme_name = variable.return_scheme_name(value)
+                if scheme_name == param_dict[var_name]:
+                    perturbation_vector[vdx] = value
         else:
-            perturbation_vector[sdx] = scheme
+            perturbation_vector[vdx] = param_dict[var_name]
 
     return xr.DataArray(
-        data=perturbation_vector,
+        data=perturbation_vector.reshape(1, -1),
         coords={'run': runs, 'variable': list(param_dict.keys())},
         dims=('run', 'variable'),
         name='perturbation_vector',
