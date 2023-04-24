@@ -157,7 +157,6 @@ def parameter_dict_to_perturbation_vector(param_dict: dict) -> xr.DataArray:
     :return: DataArray of the perturbation_vector (integers and floats)
     """
 
-    runs = np.zeros(1)
     perturbation_vector = np.empty(len(param_dict))
     for vdx, var_name in enumerate(param_dict):
         variable = PerturbedVariable.class_from_variable_name(var_name)
@@ -170,8 +169,8 @@ def parameter_dict_to_perturbation_vector(param_dict: dict) -> xr.DataArray:
             perturbation_vector[vdx] = param_dict[var_name]
 
     return xr.DataArray(
-        data=perturbation_vector.reshape(1, -1),
-        coords={'run': runs, 'variable': list(param_dict.keys())},
-        dims=('run', 'variable'),
+        data=perturbation_vector,
+        coords={'variable': list(param_dict.keys())},
+        dims='variable',
         name='perturbation_vector',
     )
