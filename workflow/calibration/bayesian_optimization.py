@@ -1,7 +1,8 @@
-from wrf_fvcom.peturb import (
+from wrf_fvcom.perturb import (
     parameter_dict_to_perturbation_vector,
     transform_perturbation_matrix,
 )
+from surrogate.tree_regression import surrogate_model_predict
 from sklearn.metrics import r2_score
 from skopt import gp_minimize
 from skopt.utils import use_named_args
@@ -12,17 +13,20 @@ def gamma2_score(obs, model):
     return gamma2
 
 
-def run_bayesian_optimization(surrogate_model, observed_data, input_space, score_type):
+def run_bayesian_optimization(
+    surrogate_model, observed_data, input_space, score_type: str = 'r2', n_initial_points=50,
+):
     @use_named_args(input_space)
     def objective(**params):
         print(params)
 
         # process the parameter inputs for surrogate model entry
         parameter_vector = parameter_dict_to_perturbation_vector(params)
-        variable_vector = transform_perturbation_matrix(perturbation_vector)
+        variable_vector = transform_perturbation_matrix(parameter_vector)
+        print(variable_vector)
 
         # predict using our surrogate model
-        predicted_data = surrogate_model(*variable_vector.T).flatten()
+        predicted_data = surrogate_model_predict(surrogate_model, variable_vector)
 
         # get score
         if score_type == 'r2':
@@ -40,8 +44,10 @@ def run_bayesian_optimization(surrogate_model, observed_data, input_space, score
     posterior_gp = gp_minimize(
         objective,
         input_space,
-        n_calls=n_points + 50,
+        n_calls=n_initial_points + 50,
         random_state=666,
         initial_point_generator='lhs',
-        n_initial_points=n_points,
+        n_initial_points=n_initial_points,
     )
+
+    return posterior_gp
