@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from wrf_fvcom.variables import PerturbedVariable, VariableDistribution
 from surrogate.tree_regression import surrogate_model_predict
 
@@ -121,3 +122,197 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000):
             sens_dict['total'][i, vdx] += sens['total'][sdx]
 
     return sens_dict
+
+
+def plot_sens(
+    sensdata,
+    pars,
+    cases,
+    vis='bar',
+    reverse=False,
+    par_labels=[],
+    case_labels=[],
+    colors=[],
+    ncol=4,
+    grid_show=True,
+    xlbl='',
+    ylbl='sensitivity',
+    legend_show=2,
+    legend_size=10,
+    xdatatick=[],
+    figname='sens.png',
+    showplot=False,
+    topsens=[],
+    lbl_size=22,
+    yoffset=0.1,
+    title='',
+    xticklabel_size=None,
+    xticklabel_rotation=0,
+    maxlegendcol=4,
+):
+    """Plots sensitivity for multiple observables"""
+
+    ncases = sensdata.shape[0]
+    npar = sensdata.shape[1]
+
+    wd = 0.6
+
+    assert set(pars) <= set(range(npar))
+    assert set(cases) <= set(range(ncases))
+
+    # Set up the figure
+    # TODO need to scale figure size according to the expected amount of legends
+
+    if xticklabel_size is None:
+        xticklabel_size = int(400 / ncases)
+
+    fig = plt.figure(figsize=(20, 12))
+    fig.add_axes([0.1, 0.2 + yoffset, 0.8, 0.6 - yoffset])
+
+    # Default parameter names
+    if par_labels == []:
+        for i in range(npar):
+            par_labels.append(('par_' + str(i + 1)))
+    # Default case names
+    if case_labels == []:
+        for i in range(ncases):
+            case_labels.append(('case_' + str(i + 1)))
+
+    if reverse:
+        tmp = par_labels
+        par_labels = case_labels
+        case_labels = tmp
+        tmp = pars
+        pars = cases
+        cases = tmp
+        sensdata = sensdata.transpose()
+
+    npar_ = len(pars)
+    ncases_ = len(cases)
+
+    sensind = np.argsort(np.average(sensdata, axis=0))[::-1]
+
+    if topsens == []:
+        topsens = npar_
+
+    # Create colors list
+    if colors == []:
+        colors_ = set_colors(topsens)
+        colors_.extend(set_colors(npar_ - topsens))
+        colors = [0.0 for i in range(npar_)]
+        for i in range(npar_):
+            colors[sensind[i]] = colors_[i]
+
+    case_labels_ = []
+    for i in range(ncases_):
+        case_labels_.append(case_labels[cases[i]])
+
+    if xdatatick == []:
+        xflag = False
+        xdatatick = np.array(range(1, ncases_ + 1))
+        sc = 1.0
+    else:
+        xflag = True
+        sc = float(xdatatick[-1] - xdatatick[0]) / ncases_
+
+    if vis == 'graph':
+        for i in range(npar_):
+            plt.plot(
+                xdatatick_,
+                sensdata[cases, i],
+                '-o',
+                color=colors[pars[i]],
+                label=par_labels[pars[i]],
+            )
+    elif vis == 'bar':
+        curr = np.zeros((ncases_))
+        # print pars,colors
+        for i in range(npar_):
+            plt.bar(
+                xdatatick,
+                sensdata[cases, i],
+                width=wd * sc,
+                color=colors[pars[i]],
+                bottom=curr,
+                label=par_labels[pars[i]],
+            )
+            curr = sensdata[cases, i] + curr
+
+        if not xflag:
+            plt.xticks(
+                np.array(range(1, ncases_ + 1)), case_labels_, rotation=xticklabel_rotation
+            )
+
+        plt.xlim(xdatatick[0] - wd * sc / 2.0 - 0.1, xdatatick[-1] + wd * sc / 2.0 + 0.1)
+
+        # else:
+        #    xticks(xdatatick)
+
+    plt.ylabel(ylbl, fontsize=lbl_size)
+    plt.xlabel(xlbl, fontsize=lbl_size)
+    plt.title(title, fontsize=lbl_size)
+
+    maxsens = max(max(curr), 1.0)
+    plt.ylim([0, maxsens])
+    handles, labels = plt.gca().get_legend_handles_labels()
+    handles = [handles[i] for i in sensind[:topsens]]
+    labels = [labels[i] for i in sensind[:topsens]]
+    if legend_show == 1:
+        plt.legend(handles, labels, fontsize=legend_size)
+    elif legend_show == 2:
+        plt.legend(
+            handles,
+            labels,
+            loc='upper left',
+            bbox_to_anchor=(0.0, -0.15),
+            fancybox=True,
+            shadow=True,
+            ncol=min(ncol, maxlegendcol),
+            labelspacing=-0.1,
+            fontsize=legend_size,
+        )
+    elif legend_show == 3:
+        plt.legend(
+            handles,
+            labels,
+            loc='upper left',
+            bbox_to_anchor=(0.0, 1.2),
+            fancybox=True,
+            shadow=True,
+            ncol=min(ncol, maxlegendcol),
+            labelspacing=-0.1,
+            fontsize=legend_size,
+        )
+
+    if not xflag:
+        zed = [
+            tick.label.set_fontsize(xticklabel_size)
+            for tick in plt.gca().xaxis.get_major_ticks()
+        ]
+
+    plt.grid(grid_show)
+
+    plt.savefig(figname)
+    if showplot:
+        plt.show()
+
+
+def set_colors(npar):
+    """ Sets a list of different colors of requested length, as rgb triples"""
+    colors = []
+    pp = 1 + int(npar / 6)
+    for i in range(npar):
+        c = 1 - float(int((i / 6)) / pp)
+        b = np.empty((3))
+        for jj in range(3):
+            b[jj] = c * int(i % 3 == jj)
+        a = int(int(i % 6) / 3)
+        colors.append(
+            (
+                (1 - a) * b[2] + a * (c - b[2]),
+                (1 - a) * b[1] + a * (c - b[1]),
+                (1 - a) * b[0] + a * (c - b[0]),
+            )
+        )
+
+    return colors
