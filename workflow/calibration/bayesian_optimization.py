@@ -18,8 +18,10 @@ def run_bayesian_optimization(
     surrogate_model,
     observed_data,
     perturbation_matrix,
+    pca_obj=None,
     score_type: str = 'r2',
     n_initial_points=50,
+    n_iterations=50,
 ):
 
     input_space = transform_perturbation_matrix(perturbation_matrix, output_type='space')
@@ -37,6 +39,8 @@ def run_bayesian_optimization(
 
         # predict using our surrogate model
         predicted_data = surrogate_model_predict(surrogate_model, variable_vector).flatten()
+        if pca_obj is not None:
+            predicted_data = pca_obj.inverse_transform(predicted_data)
 
         # get score
         if score_type == 'r2':
@@ -54,7 +58,7 @@ def run_bayesian_optimization(
     posterior_gp = gp_minimize(
         objective,
         input_space,
-        n_calls=n_initial_points + 50,
+        n_calls=n_initial_points + n_iterations,
         random_state=666,
         initial_point_generator='lhs',
         n_initial_points=n_initial_points,
