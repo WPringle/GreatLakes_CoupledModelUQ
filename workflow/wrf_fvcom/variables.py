@@ -48,15 +48,24 @@ class PerturbedVariable(Variable, ABC):
         super().__init__(unit=unit)
 
     @classmethod
-    def chaospy_distribution(self) -> chaospy.Distribution:
+    def chaospy_distribution(self,normalize: bool = False) -> chaospy.Distribution:
         if self.variable_distribution == VariableDistribution.GAUSSIAN:
-            distribution = chaospy.Normal(mu=self.mean, sigma=self.standard_deviation)
+            if normalize:
+                distribution = chaospy.Normal(mu=0.0, sigma=1.0)
+            else:
+                distribution = chaospy.Normal(mu=self.mean, sigma=self.standard_deviation)
         elif self.variable_distribution == VariableDistribution.UNIFORM:
-            distribution = chaospy.Uniform(lower=self.lower_bound, upper=self.upper_bound)
+            if normalize:
+                distribution = chaospy.Uniform(lower=0.0, upper=1.0)
+            else:
+                distribution = chaospy.Uniform(lower=self.lower_bound, upper=self.upper_bound)
         elif self.variable_distribution == VariableDistribution.DISCRETEUNIFORM:
-            distribution = chaospy.DiscreteUniform(
-                lower=self.lower_bound, upper=self.upper_bound
-            )
+            if normalize:
+                distribution = chaospy.DiscreteUniform(lower=0, upper=1)
+            else:
+                distribution = chaospy.DiscreteUniform(
+                    lower=self.lower_bound, upper=self.upper_bound
+                )
         else:
             raise ValueError(f'perturbation type {self.variable_distribution} not recognized')
 

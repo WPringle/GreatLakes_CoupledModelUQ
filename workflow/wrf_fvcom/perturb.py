@@ -20,13 +20,13 @@ class TransformRule(Enum):
     ONEHOT = OneHotEncoder()
 
 
-def distribution_from_variables(variables: List[PerturbedVariable]) -> chaospy.Distribution:
+def distribution_from_variables(variables: List[PerturbedVariable], normalize: bool = False) -> chaospy.Distribution:
     """
     :param variables: names of random variables we are perturbing
     :return: chaospy joint distribution encompassing variables
     """
 
-    return chaospy.J(*(variable.chaospy_distribution() for variable in variables))
+    return chaospy.J(*(variable.chaospy_distribution(normalize=normalize) for variable in variables))
 
 
 def perturb_variables(
@@ -79,7 +79,7 @@ def transform_perturbation_matrix(
     rule: TransformRule = TransformRule.ONEHOT,
     scale: bool = True,
     output_type: str = 'matrix',
-) -> xr.DataArray:
+) -> Union[xr.DataArray, List]:
     """
     :param perturbation_matrix: DataArray of the perturbation where categorical parameterizations are given in ordinal integers
     :param rule: rule for the transformation, see TransformRule class and sklearn preprocessing class. Only ONEHOT = OneHotEncoder() has been implemented.
