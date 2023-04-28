@@ -17,9 +17,7 @@ class DisableLogger:
 
 
 def make_pc_surrogate_model(
-    train_X,
-    train_Y,
-    polynomial_order: int = 1,
+    train_X, train_Y, polynomial_order: int = 1,
 ):
 
     nens, ndim = train_X.shape
@@ -32,9 +30,9 @@ def make_pc_surrogate_model(
     ]
     with DisableLogger():
         polynomial_expansion = chaospy.generate_expansion(
-                order=polynomial_order,
-                dist=distribution_from_variables(variable_transformed, normalize=True),
-                rule='three_terms_recurrence',
+            order=polynomial_order,
+            dist=distribution_from_variables(variable_transformed, normalize=True),
+            rule='three_terms_recurrence',
         )
     reg = LassoCV(fit_intercept=False, cv=cv, selection='random', random_state=666)
 

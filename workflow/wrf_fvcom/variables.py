@@ -48,7 +48,7 @@ class PerturbedVariable(Variable, ABC):
         super().__init__(unit=unit)
 
     @classmethod
-    def chaospy_distribution(self,normalize: bool = False) -> chaospy.Distribution:
+    def chaospy_distribution(self, normalize: bool = False) -> chaospy.Distribution:
         if self.variable_distribution == VariableDistribution.GAUSSIAN:
             if normalize:
                 distribution = chaospy.Normal(mu=0.0, sigma=1.0)

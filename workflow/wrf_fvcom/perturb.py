@@ -20,13 +20,17 @@ class TransformRule(Enum):
     ONEHOT = OneHotEncoder()
 
 
-def distribution_from_variables(variables: List[PerturbedVariable], normalize: bool = False) -> chaospy.Distribution:
+def distribution_from_variables(
+    variables: List[PerturbedVariable], normalize: bool = False
+) -> chaospy.Distribution:
     """
     :param variables: names of random variables we are perturbing
     :return: chaospy joint distribution encompassing variables
     """
 
-    return chaospy.J(*(variable.chaospy_distribution(normalize=normalize) for variable in variables))
+    return chaospy.J(
+        *(variable.chaospy_distribution(normalize=normalize) for variable in variables)
+    )
 
 
 def perturb_variables(

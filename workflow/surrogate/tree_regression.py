@@ -23,6 +23,7 @@ def make_tree_surrogate_model(
     regressor: str = 'RF',
     criterion: str = 'squared_error',
     loss: str = 'squared_error',
+    combined_model: bool = True,
     n_iter_no_change: int = None,
     validation_fraction: float = 0.20,
 ):
@@ -38,6 +39,19 @@ def make_tree_surrogate_model(
 
     if regressor == 'RF':
         reg = RandomForestRegressor(random_state=666, criterion=criterion)
+    elif regressor == 'GB':
+        reg = GradientBoostingRegressor(
+            random_state=666,
+            criterion=criterion,
+            loss=loss,
+            n_iter_no_change=n_iter_no_change,
+            validation_fraction=validation_fraction,
+        )
+        combined_model = False  # must be false for GB
+    else:
+        raise ValueError(f'{regressor} not recognized')
+
+    if combined_model:
         scorer = kl_scorer(eigenratio)
 
         grid_reg = GridSearchCV(reg, param_grid, cv=cv, scoring=scorer)
@@ -49,14 +63,7 @@ def make_tree_surrogate_model(
 
         cv_score = cross_val_score(surrogate_model, train_X, train_Y, cv=cv, scoring=scorer)
 
-    elif regressor == 'GB':
-        reg = GradientBoostingRegressor(
-            random_state=666,
-            criterion=criterion,
-            loss=loss,
-            n_iter_no_change=n_iter_no_change,
-            validation_fraction=validation_fraction,
-        )
+    else:
         scorer = kl_scorer(1.0)
 
         surrogate_model = []
@@ -74,7 +81,5 @@ def make_tree_surrogate_model(
             cv_score.append(cross_val_score(sm, train_X, train_yy, cv=cv, scoring=scorer))
 
             surrogate_model.append(sm)
-    else:
-        raise ValueError(f'{regressor} not recognized')
 
     return surrogate_model, best_params, cv_score
