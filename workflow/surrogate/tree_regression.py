@@ -23,6 +23,8 @@ def make_surrogate_model(
     regressor: str = 'RF',
     criterion: str = 'squared_error',
     loss: str = 'squared_error',
+    n_iter_no_change: int = None,
+    validation_fraction: float = 0.20,
 ):
 
     nens, ndim = train_X.shape
@@ -48,7 +50,13 @@ def make_surrogate_model(
         cv_score = cross_val_score(surrogate_model, train_X, train_Y, cv=cv, scoring=scorer)
 
     elif regressor == 'GB':
-        reg = GradientBoostingRegressor(random_state=666, criterion=criterion, loss=loss)
+        reg = GradientBoostingRegressor(
+            random_state=666,
+            criterion=criterion,
+            loss=loss,
+            n_iter_no_change=n_iter_no_change,
+            validation_fraction=validation_fraction,
+        )
         scorer = kl_scorer(1.0)
 
         surrogate_model = []
