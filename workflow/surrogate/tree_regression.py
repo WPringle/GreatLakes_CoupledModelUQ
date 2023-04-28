@@ -16,7 +16,7 @@ def kl_scorer(eigenratio):
     return make_scorer(weighted_rmse, greater_is_better=False)
 
 
-def make_surrogate_model(
+def make_tree_surrogate_model(
     train_X,
     train_Y,
     eigenratio=1.0,

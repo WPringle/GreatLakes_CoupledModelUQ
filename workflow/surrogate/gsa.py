@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from wrf_fvcom.variables import PerturbedVariable, VariableDistribution
-from surrogate.tree_regression import surrogate_model_predict
+from surrogate.utils import surrogate_model_predict
 
 ###########################################
 #  ____     ___    ____     ___    _      #

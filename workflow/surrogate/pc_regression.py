@@ -16,7 +16,7 @@ class DisableLogger:
         logging.disable(logging.NOTSET)
 
 
-def make_surrogate_model(
+def make_pc_surrogate_model(
     train_X,
     train_Y,
     polynomial_order: int = 1,

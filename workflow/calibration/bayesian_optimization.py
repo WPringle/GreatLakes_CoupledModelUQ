@@ -2,7 +2,7 @@ from wrf_fvcom.perturb import (
     parameter_dict_to_perturbation_vector,
     transform_perturbation_matrix,
 )
-from surrogate.tree_regression import surrogate_model_predict
+from surrogate.utils import surrogate_model_predict
 from sklearn.metrics import r2_score
 from skopt import gp_minimize
 from skopt.utils import use_named_args
