@@ -3,7 +3,7 @@ import chaospy
 import logging
 from wrf_fvcom.variables import PerturbedVariable
 from wrf_fvcom.perturb import distribution_from_variables
-from sklearn.model_selection import LeaveOneOut
+from sklearn.model_selection import LeavePOut
 from sklearn.linear_model import LassoCV
 from numpoly import polynomial, ndpoly
 
@@ -17,13 +17,13 @@ class DisableLogger:
 
 
 def make_pc_surrogate_model(
-    train_X, train_Y, polynomial_order: int = 1,
+    train_X, train_Y, polynomial_order: int = 1, LPO_p: int = 1,
 ):
 
     nens, ndim = train_X.shape
     nens_, neig = train_Y.shape
     assert nens == nens_
-    cv = LeaveOneOut()
+    cv = LeavePOut(p=LPO_p)
 
     variable_transformed = [
         PerturbedVariable.class_from_scheme_name(scheme) for scheme in train_X['scheme']
