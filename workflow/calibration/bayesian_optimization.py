@@ -30,12 +30,7 @@ def run_bayesian_optimization(
     def objective(**params):
         print(params)
 
-        # process the parameter inputs for surrogate model entry
-        parameter_vector = parameter_dict_to_perturbation_vector(params)
-        # replace the first matrix entry of the dummy matrix
-        perturbation_matrix[0, :] = parameter_vector.values
-        variable_matrix = transform_perturbation_matrix(perturbation_matrix)
-        variable_vector = variable_matrix.isel(run=0).values.reshape(1, -1)
+        variable_vector = vector_from_parameter_list(params, perturbation_matrix)
 
         # predict using our surrogate model
         predicted_data = surrogate_model_predict(surrogate_model, variable_vector).flatten()
@@ -64,4 +59,22 @@ def run_bayesian_optimization(
         n_initial_points=n_initial_points,
     )
 
-    return posterior_gp
+    # retrieve the best prediction
+    best_params = dict(zip(posterior_gp.space.dimension_names, posterior_gp.x))
+    variable_vector = vector_from_parameter_list(best_params, perturbation_matrix)
+    best_prediction = surrogate_model_predict(surrogate_model, variable_vector).flatten()
+    if pca_obj is not None:
+        best_prediction = pca_obj.inverse_transform(best_prediction)
+
+    return posterior_gp, best_prediction
+
+
+def vector_from_parameter_list(params, perturbation_matrix):
+    # process the parameter inputs for surrogate model entry
+    parameter_vector = parameter_dict_to_perturbation_vector(params)
+    # replace the first matrix entry of the dummy matrix
+    perturbation_matrix[0, :] = parameter_vector.values
+    variable_matrix = transform_perturbation_matrix(perturbation_matrix)
+    variable_vector = variable_matrix.isel(run=0).values.reshape(1, -1)
+
+    return variable_vector
