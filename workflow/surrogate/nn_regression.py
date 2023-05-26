@@ -5,6 +5,66 @@ import matplotlib.pyplot as plt
 torch.set_default_dtype(torch.double)
 
 
+def weighted_loss(loss, y_pred, y_true, eigenratio):
+    if len(y_true.shape) == 2:
+        naxis = 1
+    else:
+        naxis = 0
+    wse = (loss(y_pred, y_true) * eigenratio).sum(axis=naxis)
+    return wse.mean()
+
+
+def make_nn_surrogate_model(
+    train_X,
+    train_Y,
+    test_X=None,
+    test_Y=None,
+    eigenratio=1.0,
+    num_hidden_layers: int = 1,
+    neurons_per_layer: int = None,
+    loss: str = 'mse',
+    lrate: float = 0.0001,
+    batch_size: int = None,
+    nepochs: int = 2000,
+    seed: int = None,
+):
+
+    if seed is not None:
+        torch.manual_seed(seed)
+
+    nens, ndim = train_X.shape
+    nens_, neig = train_Y.shape
+    assert nens == nens_
+    if test_X is None:
+        test_X = train_X
+    if test_Y is None:
+        test_Y = train_Y
+    nens1, ndim = test_X.shape
+    nens1_, neig = test_Y.shape
+    assert nens1 == nens1_
+
+    if neurons_per_layer == None:
+        neurons_per_layer = int((ndim + neig)/2) + 1
+
+    layers = [neurons_per_layer] * num_hidden_layers
+    surrogate_model = MLP(ndim, neig, layers)
+
+    results = surrogate_model.fit(
+        train_X,
+        train_Y,
+        val=[test_X, test_Y],
+        lrate=lrate,
+        batch_size=batch_size,
+        nepochs=nepochs,
+        loss_fn=loss,
+        gradcheck=False,
+        freq_out=100,
+        eigenratio=eigenratio,
+    )
+
+    return surrogate_model
+
+
 def tch(arr, device='cpu'):
     # return torch.from_numpy(arr.astype(np.double)).to(device)
     # x = torch.from_numpy(arr).double()
@@ -104,6 +164,7 @@ class MLPBase(torch.nn.Module):
         freq_plot=1000,
         loss=None,
         opt=None,
+        eigenratio=1.0,
     ):
 
         assert batch_size is None or num_batches is None
@@ -111,7 +172,9 @@ class MLPBase(torch.nn.Module):
         # Loss function
         if loss is None:
             if loss_fn == 'mse':
-                loss = torch.nn.MSELoss(reduction='mean')
+                #loss = torch.nn.MSELoss(reduction='mean')
+                # so we can sum by eigenvalues..
+                loss = torch.nn.MSELoss(reduction='none')
             else:
                 print(f'Loss function {loss_fn} is unknown. Exiting.')
                 sys.exit()
@@ -175,15 +238,13 @@ class MLPBase(torch.nn.Module):
                 with torch.no_grad():
                     yval_pred = self.forward(xval_)
 
-                loss_trn = loss(ytrn_pred, ytrn_[indices, :])
-                # loss_val = loss_trn
+                loss_trn = weighted_loss(loss, ytrn_pred, ytrn_[indices, :], eigenratio)
                 with torch.no_grad():
-                    loss_val = loss(yval_pred, yval_)
-                # loss_trn_full = loss_trn
+                    loss_val = weighted_loss(loss, yval_pred, yval_, eigenratio)
                 if i == 0:  # otherwise too expensive
                     with torch.no_grad():
                         ytrn_pred_full = self.forward(xtrn_)
-                        loss_trn_full = loss(ytrn_pred_full, ytrn_)
+                        loss_trn_full = weighted_loss(loss, ytrn_pred_full, ytrn_, eigenratio)
 
                 fepochs += 1.0 / nsubepochs
 
