@@ -1,7 +1,8 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import make_scorer
-from sklearn.model_selection import cross_val_score, LeaveOneOut, ShuffleSplit, GridSearchCV
+from sklearn.model_selection import cross_val_score, LeaveOneOut, LeavePOut, GridSearchCV
 
 
 def kl_scorer(eigenratio):
@@ -26,6 +27,7 @@ def make_tree_surrogate_model(
     combined_model: bool = True,
     n_iter_no_change: int = None,
     validation_fraction: float = 0.20,
+    LPO_p: int = 1,
 ):
 
     nens, ndim = train_X.shape
@@ -33,12 +35,17 @@ def make_tree_surrogate_model(
     assert nens == nens_
     param_grid = {
         'n_estimators': [ndim, ndim * 2, ndim * 4],
-        'max_features': [0.3, 0.6, 0.8, 1.0],
+        'max_features': [0.1, 0.3, 0.6, 1.0],
     }
-    cv = LeaveOneOut()
+    cv = LeavePOut(p=LPO_p)
 
     if regressor == 'RF':
         reg = RandomForestRegressor(random_state=666, criterion=criterion)
+    elif regressor == 'DT':
+        param_grid = {
+            #'ccp_alpha': [0, 0.025, 0.05, 0.1, 0.25, 0.5],
+            'max_features': [0.1, 0.3, 0.6, 1.0]}
+        reg = DecisionTreeRegressor(random_state=666, criterion=criterion)
     elif regressor == 'GB':
         reg = GradientBoostingRegressor(
             random_state=666,
