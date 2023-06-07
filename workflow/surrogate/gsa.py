@@ -142,6 +142,7 @@ def plot_sens(
     xdatatick=[],
     figname='sens.png',
     showplot=False,
+    senssort=True,
     topsens=[],
     lbl_size=22,
     yoffset=0.1,
@@ -190,7 +191,10 @@ def plot_sens(
     npar_ = len(pars)
     ncases_ = len(cases)
 
-    sensind = np.argsort(np.average(sensdata, axis=0))[::-1]
+    if senssort:
+        sensind = np.argsort(np.nanmean(sensdata, axis=0))[::-1]
+    else:
+        sensind = np.arange(npar_)
 
     if topsens == []:
         topsens = npar_
@@ -236,7 +240,7 @@ def plot_sens(
                 bottom=curr,
                 label=par_labels[pars[i]],
             )
-            curr = sensdata[cases, i] + curr
+            curr = np.nan_to_num(sensdata[cases, i]) + curr
 
         if not xflag:
             plt.xticks(
@@ -252,7 +256,7 @@ def plot_sens(
     plt.xlabel(xlbl, fontsize=lbl_size)
     plt.title(title, fontsize=lbl_size)
 
-    maxsens = max(max(curr), 1.0)
+    maxsens = max(curr.max(), 1.0)
     plt.ylim([0, maxsens])
     handles, labels = plt.gca().get_legend_handles_labels()
     handles = [handles[i] for i in sensind[:topsens]]
