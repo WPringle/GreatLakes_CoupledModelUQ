@@ -19,7 +19,7 @@ from wrf_fvcom.perturb import (
 
 if __name__ == '__main__':
 
-    output_directory = Path.cwd() / 'output_files'
+    output_directory = Path.cwd().parent / 'output'
 
     variables = [
         WRF_PBL_SFCLAY,
