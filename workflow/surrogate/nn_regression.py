@@ -59,7 +59,7 @@ def make_nn_surrogate_model(
         loss_fn=loss,
         gradcheck=False,
         freq_out=100,
-        eigenratio=eigenratio,
+        eigenratio=tch(eigenratio),
     )
 
     return surrogate_model
@@ -229,6 +229,7 @@ class MLPBase(torch.nn.Module):
         fepochs = 0
         for t in range(nepochs):
             permutation = torch.randperm(ntrn)
+            #print(permutation)
             # for parameter in model.parameters():
             #     print(parameter)
             nsubepochs = len(range(0, ntrn, batch_size))
