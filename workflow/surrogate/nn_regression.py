@@ -44,7 +44,7 @@ def make_nn_surrogate_model(
     assert nens1 == nens1_
 
     if neurons_per_layer == None:
-        neurons_per_layer = int((ndim + neig)/2) + 1
+        neurons_per_layer = int((ndim + neig) / 2) + 1
 
     layers = [neurons_per_layer] * num_hidden_layers
     surrogate_model = MLP(ndim, neig, layers)
@@ -172,7 +172,7 @@ class MLPBase(torch.nn.Module):
         # Loss function
         if loss is None:
             if loss_fn == 'mse':
-                #loss = torch.nn.MSELoss(reduction='mean')
+                # loss = torch.nn.MSELoss(reduction='mean')
                 # so we can sum by eigenvalues..
                 loss = torch.nn.MSELoss(reduction='none')
             else:
@@ -229,7 +229,7 @@ class MLPBase(torch.nn.Module):
         fepochs = 0
         for t in range(nepochs):
             permutation = torch.randperm(ntrn)
-            #print(permutation)
+            # print(permutation)
             # for parameter in model.parameters():
             #     print(parameter)
             nsubepochs = len(range(0, ntrn, batch_size))

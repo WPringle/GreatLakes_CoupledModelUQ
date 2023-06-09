@@ -3,8 +3,8 @@ import chaospy
 import logging
 from wrf_fvcom.variables import PerturbedVariable
 from wrf_fvcom.perturb import distribution_from_variables
-from sklearn.model_selection import LeavePOut
-from sklearn.linear_model import LassoCV
+from sklearn.model_selection import LeaveOneOut
+from sklearn.linear_model import LassoCV, ElasticNetCV
 from numpoly import polynomial, ndpoly
 
 
@@ -17,13 +17,12 @@ class DisableLogger:
 
 
 def make_pc_surrogate_model(
-    train_X, train_Y, polynomial_order: int = 1, LPO_p: int = 1,
+    train_X, train_Y, polynomial_order: int = 1, regressor: str = 'Lasso', cv=LeaveOneOut(),
 ):
 
     nens, ndim = train_X.shape
     nens_, neig = train_Y.shape
     assert nens == nens_
-    cv = LeavePOut(p=LPO_p)
 
     variable_transformed = [
         PerturbedVariable.class_from_scheme_name(scheme) for scheme in train_X['scheme']
@@ -34,7 +33,13 @@ def make_pc_surrogate_model(
             dist=distribution_from_variables(variable_transformed, normalize=True),
             rule='three_terms_recurrence',
         )
-    reg = LassoCV(fit_intercept=False, cv=cv, selection='random', random_state=666)
+
+    if regressor == 'Lasso':
+        reg = LassoCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
+    elif regressor == 'ElasticNet':
+        reg = ElasticNetCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
+    else:
+        ValueError(f'{regressor} not recognized')
 
     poly_list = [None] * neig
     for mode in range(neig):
