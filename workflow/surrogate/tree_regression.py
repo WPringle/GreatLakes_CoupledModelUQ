@@ -1,12 +1,15 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from xgboost import XGBRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score, LeaveOneOut, LeavePOut, GridSearchCV
 
 
-def kl_scorer(eigenratio):
+def kl_scorer(eigenratio, metric=False):
     def weighted_rmse(y_true, y_pred):
+        if len(y_true.shape) == 1 and len(y_pred.shape) == 2:
+            y_true = y_true.reshape(y_pred.shape)
         if len(y_true.shape) == 2:
             naxis = 1
         else:
@@ -14,7 +17,10 @@ def kl_scorer(eigenratio):
         wmse = ((y_true - y_pred) ** 2 * eigenratio).sum(axis=naxis)
         return np.mean(np.sqrt(wmse))
 
-    return make_scorer(weighted_rmse, greater_is_better=False)
+    if metric:
+        return weighted_rmse
+    else:
+        return make_scorer(weighted_rmse, greater_is_better=False)
 
 
 def make_tree_surrogate_model(
@@ -26,7 +32,7 @@ def make_tree_surrogate_model(
     loss: str = 'squared_error',
     combined_model: bool = True,
     n_iter_no_change: int = None,
-    validation_fraction: float = 0.20,
+    validation_fraction=0.20,
     LPO_p: int = 1,
 ):
 
@@ -35,7 +41,7 @@ def make_tree_surrogate_model(
     assert nens == nens_
     param_grid = {
         'n_estimators': [ndim, ndim * 2, ndim * 4],
-        'max_features': [0.1, 0.3, 0.6, 1.0],
+        #        'max_features': [0.1, 0.3, 0.6, 1.0],
     }
     cv = LeavePOut(p=LPO_p)
 
@@ -44,7 +50,8 @@ def make_tree_surrogate_model(
     elif regressor == 'DT':
         param_grid = {
             #'ccp_alpha': [0, 0.025, 0.05, 0.1, 0.25, 0.5],
-            'max_features': [0.1, 0.3, 0.6, 1.0]}
+            'max_features': [0.1, 0.3, 0.6, 1.0]
+        }
         reg = DecisionTreeRegressor(random_state=666, criterion=criterion)
     elif regressor == 'GB':
         reg = GradientBoostingRegressor(
@@ -55,6 +62,24 @@ def make_tree_surrogate_model(
             validation_fraction=validation_fraction,
         )
         combined_model = False  # must be false for GB
+    elif regressor == 'XG':
+        if combined_model:
+            metric = kl_scorer(eigenratio, metric=True)
+        else:
+            metric = kl_scorer(1.0, metric=True)
+
+        surrogate_model = XGBRegressor(
+            n_estimators=ndim,
+            tree_method='exact',
+            random_state=666,
+            early_stopping_rounds=n_iter_no_change,
+            eval_metric=metric,
+        )
+
+        surrogate_model.fit(train_X, train_Y, eval_set=validation_fraction)
+        best_params = []
+        cv_score = []
+        return surrogate_model, best_params, cv_score
     else:
         raise ValueError(f'{regressor} not recognized')
 
