@@ -91,14 +91,12 @@ def extract_timeseries_at_locations(
     return output_list
 
 
-def align_model_with_observations(model=dict, data=List) -> dict:
+def align_model_with_observations(model: dict, data: List, remove_noise: bool = True) -> dict:
     """
-    :param files_lists: list of list of files for each model run
-    :param file_type: "wrf" cstm file or "fvcom" output file
-    :param variable_name: variable name to extract
-    :param lons: list of longitude locations
-    :param lats: list of latitude locations
-    :return: list of times and variables at the locations for each model run
+    :param model: dictionary of model runs
+    :param data: list of observation data
+    :param remove noise: choice to remove noisy 2*dx waves in model data
+    :return: dictionary of processes timeseries where data and model times overlap and shaped into a vector
 
    """
 
@@ -132,26 +130,24 @@ def align_model_with_observations(model=dict, data=List) -> dict:
             for rr, this_run in enumerate(model[variable]):
                 # print(rr)
                 _, _, mod_int_ind = np.intersect1d(obs_time, this_run[0], return_indices=True)
-                model_temp[rr, :] = this_run[1][mod_int_ind, bdx]
+                if remove_noise:
+                    model_temp[rr, :] = remove_2dx_waves(this_run[1][mod_int_ind, bdx])
+                else:
+                    model_temp[rr, :] = this_run[1][mod_int_ind, bdx]
             model_vector[variable] = np.append(model_vector[variable], model_temp, axis=1)
 
     return {'time': time_vector, 'data': data_vector, 'model': model_vector}
 
 
-def remove_dx_waves(bad):
-    # removing some bad 2*delta(X) waves
-    bad_tol = 2  # up and down 2 degree Celcius in between hour forward and back
-    for rdx, run in enumerate(wfv_runs['T2']):
-        bad_pts = 0
-        for bdx, bd in enumerate(buoy_data):
-            ts = run[1][:, bdx].copy()
-            for tdx, tss in enumerate(ts):
-                if tdx == 0 or tdx == ts.shape[0] - 1:
-                    continue
-                if abs(ts[tdx + 1] - tss) > bad_tol and abs(ts[tdx - 1] - tss) > bad_tol:
-                    ts[tdx] = 0.5 * (ts[tdx + 1] + ts[tdx - 1])
-                    bad_pts += 1
-            run[1][:, bdx] = ts
-        print(bad_pts)
+def remove_2dx_waves(ts):
+    # removing noisy 2*delta(X) waves
+    bad_tol = 0.5 * np.sqrt(2) * np.std(ts)
+    for tdx, tss in enumerate(ts):
+        if tdx == 0 or tdx == ts.shape[0] - 1:
+            continue
+        tn = ts[tdx + 1]
+        tp = ts[tdx - 1]
+        if abs(tp - tss) > bad_tol and abs(tn - tss) > bad_tol:
+            ts[tdx] = 0.5 * (tp + tn)
 
-    return bad_pts
+    return ts
