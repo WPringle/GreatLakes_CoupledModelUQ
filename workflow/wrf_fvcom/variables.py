@@ -360,6 +360,15 @@ class FVCOM_Prandtl(PerturbedVariable):
     """
     ``FVCOM_Prandtl`` (``FVCOM Prandlt Number``)
     Uniform distribution on [1,10] of the horizontal=vertical Prandtl number.
+
+    IMPORTANT NOTE: Traditionally Pr = momentum/thermal diffusion,
+    which we use here. However FVCOM implements the inverse (1/Pr),
+    so user will need to enter 1/Pr in the FVCOM namelist file.
+    e.g., Pr = 10, enter:
+    HORIZONTAL_PRANDTL_NUMBER =  0.1,
+    ...
+    VERTICAL_PRANDTL_NUMBER =  0.1,
+
     """
 
     name = 'FVCOM Prandtl'
