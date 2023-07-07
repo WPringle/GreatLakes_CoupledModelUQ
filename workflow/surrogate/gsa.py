@@ -140,7 +140,7 @@ def plot_sens(
     legend_show=2,
     legend_size=10,
     xdatatick=[],
-    figname='sens.png',
+    figname=None,
     showplot=False,
     senssort=True,
     topsens=[],
@@ -295,8 +295,9 @@ def plot_sens(
         ]
 
     plt.grid(grid_show)
-
-    plt.savefig(figname)
+   
+    if figname is not None:
+        plt.savefig(figname)
     if showplot:
         plt.show()
 
