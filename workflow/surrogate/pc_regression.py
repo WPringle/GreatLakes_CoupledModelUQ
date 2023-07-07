@@ -4,7 +4,12 @@ import logging
 from wrf_fvcom.variables import PerturbedVariable
 from wrf_fvcom.perturb import distribution_from_variables
 from sklearn.model_selection import LeaveOneOut
-from sklearn.linear_model import LassoCV, ElasticNetCV
+from sklearn.linear_model import (
+    LassoCV,
+    ElasticNetCV,
+    LassoLarsCV,
+    OrthogonalMatchingPursuitCV,
+)
 from numpoly import polynomial, ndpoly
 
 
@@ -38,6 +43,12 @@ def make_pc_surrogate_model(
         reg = LassoCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
     elif regressor == 'ElasticNet':
         reg = ElasticNetCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
+    elif regressor == 'LassoLars':
+        reg = LassoLarsCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
+    elif regressor == 'OMP':
+        reg = OrthogonalMatchingPursuitCV(
+            fit_intercept=False, cv=cv, selection='random', random_state=222
+        )
     else:
         ValueError(f'{regressor} not recognized')
 

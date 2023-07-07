@@ -295,7 +295,7 @@ def plot_sens(
         ]
 
     plt.grid(grid_show)
-   
+
     if figname is not None:
         plt.savefig(figname)
     if showplot:
