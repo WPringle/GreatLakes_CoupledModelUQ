@@ -4,6 +4,8 @@ from typing import List
 from pandas import to_datetime, Timedelta, Timestamp
 from datetime import datetime
 from scipy.spatial import KDTree
+from math import ceil
+
 
 K2C = -273.15
 
@@ -87,6 +89,82 @@ def extract_timeseries_at_locations(
             wfv_value_at_locs += K2C
 
         output_list.append([wfv_time, wfv_value_at_locs])
+
+    return output_list
+
+
+def extract_daily_timeseries_global(
+    files_lists: List, file_type: str, variable_name: str,
+) -> List:
+
+    if file_type == 'fvcom':
+        days_per_file = 1
+        vertical_layer = 0
+        if variable_name == 'LST':
+            variable_name = 'temp'
+    elif file_type == 'wrf':
+        days_per_file = 1 / 24
+    else:
+        raise ValueError(f'file_type {file_type} not recognized')
+
+    output_list = []
+    for file_list in files_lists:
+        print(f'processing new model run, first file name: {file_list[0]}')
+        wfv_time = np.empty(ceil(len(file_list) * days_per_file), dtype='datetime64[s]')
+        nn = 0
+        for idx, fname in enumerate(file_list):
+            if file_type == 'fvcom':
+                wfv_temp = xr.open_dataset(
+                    fname, decode_times=False, drop_variables=['siglay', 'siglev']
+                )
+                wfv_time[nn] = to_datetime('1858-11-17') + Timedelta(
+                    int(wfv_temp.time.values[0] * 24), 'h'
+                )
+            elif file_type == 'wrf':
+                wfv_temp = xr.open_dataset(fname)
+                ddhh = datetime.fromisoformat(fname[-19::])
+                if ddhh.hour == 0:
+                    wfv_time[nn] = np.datetime64(ddhh)
+
+            if file_type == 'fvcom':
+                value_temp = (
+                    wfv_temp[variable_name].isel(siglay=vertical_layer).mean(dim='time')
+                )
+                if idx == 0:
+                    wfv_daily_values = value_temp
+                else:
+                    wfv_daily_values = xr.concat([wfv_daily_values, value_temp], 'time')
+                nn += 1
+            elif file_type == 'wrf':
+                if ddhh.hour == 0:
+                    value_temp = wfv_temp[variable_name]
+                else:
+                    value_temp = xr.concat([value_temp, wfv_temp[variable_name]], dim='Time')
+                if ddhh.hour == 23:
+                    value_temp = value_temp.mean(dim='Time')
+                    if nn == 0:
+                        wfv_daily_values = value_temp
+                    else:
+                        wfv_daily_values = xr.concat([wfv_daily_values, value_temp], 'time')
+                    nn += 1
+
+        # remove non-unique values
+        wfv_time, idx_start = np.unique(wfv_time[0:nn], return_index=True)
+        wfv_daily_values = wfv_daily_values.isel(time=idx_start)
+
+        # get the coordinates back
+        if file_type == 'wrf':
+            wfv_daily_values = wfv_daily_values.assign_coords(
+                {
+                    'XLONG': wfv_temp['XLONG'].isel(Time=0),
+                    'XLAT': wfv_temp['XLAT'].isel(Time=0),
+                }
+            )
+
+        if variable_name == 'T2':
+            wfv_daily_values += K2C
+
+        output_list.append([wfv_time, wfv_daily_values])
 
     return output_list
 
