@@ -146,6 +146,7 @@ def plot_sens(
     topsens=[],
     lbl_size=22,
     yoffset=0.1,
+    ylim_max=None,
     title='',
     xticklabel_size=None,
     xticklabel_rotation=0,
@@ -257,7 +258,11 @@ def plot_sens(
     plt.title(title, fontsize=lbl_size)
 
     maxsens = max(curr.max(), 1.0)
-    plt.ylim([0, maxsens])
+    if ylim_max is None:
+       plt.ylim([0, maxsens])
+    else:
+       plt.ylim([0, ylim_max])
+
     handles, labels = plt.gca().get_legend_handles_labels()
     handles = [handles[i] for i in sensind[:topsens]]
     labels = [labels[i] for i in sensind[:topsens]]
