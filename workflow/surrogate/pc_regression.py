@@ -7,8 +7,8 @@ from sklearn.model_selection import LeaveOneOut
 from sklearn.linear_model import (
     LassoCV,
     ElasticNetCV,
-    LassoLarsCV,
-    OrthogonalMatchingPursuitCV,
+    Lars,
+    OrthogonalMatchingPursuit,
 )
 from numpoly import polynomial, ndpoly
 
@@ -40,15 +40,15 @@ def make_pc_surrogate_model(
         )
 
     if regressor == 'Lasso':
-        reg = LassoCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
+        reg = LassoCV(fit_intercept=False, cv=cv)
     elif regressor == 'ElasticNet':
-        reg = ElasticNetCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
-    elif regressor == 'LassoLars':
-        reg = LassoLarsCV(fit_intercept=False, cv=cv, selection='random', random_state=222)
+        reg = ElasticNetCV(fit_intercept=False, cv=cv)
+    elif regressor == 'Lars':
+        #reg = LassoLarsCV(fit_intercept=False, cv=cv)
+        reg = Lars(fit_intercept=False, n_nonzero_coefs=cv)
     elif regressor == 'OMP':
-        reg = OrthogonalMatchingPursuitCV(
-            fit_intercept=False, cv=cv, selection='random', random_state=222
-        )
+        #reg = OrthogonalMatchingPursuitCV(fit_intercept=False, cv=cv)
+        reg = OrthogonalMatchingPursuit(fit_intercept=False, n_nonzero_coefs=cv)
     else:
         ValueError(f'{regressor} not recognized')
 
