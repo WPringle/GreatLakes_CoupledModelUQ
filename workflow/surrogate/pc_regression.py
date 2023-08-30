@@ -7,7 +7,7 @@ from sklearn.model_selection import LeaveOneOut
 from sklearn.linear_model import (
     LassoCV,
     ElasticNetCV,
-    Lars,
+    LassoLarsCV,
     OrthogonalMatchingPursuit,
 )
 from numpoly import polynomial, ndpoly
@@ -44,8 +44,8 @@ def make_pc_surrogate_model(
     elif regressor == 'ElasticNet':
         reg = ElasticNetCV(fit_intercept=False, cv=cv)
     elif regressor == 'Lars':
-        #reg = LassoLarsCV(fit_intercept=False, cv=cv)
-        reg = Lars(fit_intercept=False, n_nonzero_coefs=cv)
+        reg = LassoLarsCV(fit_intercept=False, cv=cv)
+        #reg = Lars(fit_intercept=False, n_nonzero_coefs=cv)
     elif regressor == 'OMP':
         #reg = OrthogonalMatchingPursuitCV(fit_intercept=False, cv=cv)
         reg = OrthogonalMatchingPursuit(fit_intercept=False, n_nonzero_coefs=cv)
