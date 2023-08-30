@@ -57,7 +57,7 @@ def make_nn_surrogate_model(
             cv = LeaveOneOut()
         elif cv == 'KFold':
             cv = KFold()
-        surrogate_model = [] #[MLP(ndim, neig, layers)] * cv.get_n_splits(train_X)
+        surrogate_model = []  # [MLP(ndim, neig, layers)] * cv.get_n_splits(train_X)
         for i, (train_indices, test_indices) in enumerate(cv.split(train_X)):
             print(f'Fold {i}:')
             print(f'  Train: index={train_indices}')

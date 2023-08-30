@@ -44,7 +44,8 @@ def make_tree_surrogate_model(
     elif regressor == 'DT':
         param_grid = {
             #'ccp_alpha': [0, 0.025, 0.05, 0.1, 0.25, 0.5],
-            'max_features': [0.1, 0.3, 0.6, 1.0]}
+            'max_features': [0.1, 0.3, 0.6, 1.0]
+        }
         reg = DecisionTreeRegressor(random_state=666, criterion=criterion)
     elif regressor == 'GB':
         reg = GradientBoostingRegressor(
