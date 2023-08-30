@@ -1,6 +1,8 @@
 import copy
 import torch
 import matplotlib.pyplot as plt
+from numpy import setdiff1d
+from sklearn.model_selection import LeaveOneOut, KFold
 
 torch.set_default_dtype(torch.double)
 
@@ -19,6 +21,7 @@ def make_nn_surrogate_model(
     train_Y,
     test_X=None,
     test_Y=None,
+    cv=None,
     eigenratio=1.0,
     num_hidden_layers: int = 1,
     neurons_per_layer: int = None,
@@ -49,18 +52,44 @@ def make_nn_surrogate_model(
     layers = [neurons_per_layer] * num_hidden_layers
     surrogate_model = MLP(ndim, neig, layers)
 
-    results = surrogate_model.fit(
-        train_X,
-        train_Y,
-        val=[test_X, test_Y],
-        lrate=lrate,
-        batch_size=batch_size,
-        nepochs=nepochs,
-        loss_fn=loss,
-        gradcheck=False,
-        freq_out=100,
-        eigenratio=tch(eigenratio),
-    )
+    if cv is not None:
+        if cv == 'LOO':
+            cv = LeaveOneOut()
+        elif cv == 'KFold':
+            cv = KFold()
+        surrogate_model = [] #[MLP(ndim, neig, layers)] * cv.get_n_splits(train_X)
+        for i, (train_indices, test_indices) in enumerate(cv.split(train_X)):
+            print(f'Fold {i}:')
+            print(f'  Train: index={train_indices}')
+            print(f'  Test:  index={test_indices}')
+            surrogate_model.append(MLP(ndim, neig, layers))
+            results = surrogate_model[i].fit(
+                train_X[train_indices, :],
+                train_Y[train_indices, :],
+                val=[test_X[test_indices, :], test_Y[test_indices, :]],
+                lrate=lrate,
+                batch_size=batch_size,
+                nepochs=nepochs,
+                loss_fn=loss,
+                gradcheck=False,
+                freq_out=100,
+                eigenratio=tch(eigenratio),
+            )
+
+    else:
+        surrogate_model = MLP(ndim, neig, layers)
+        results = surrogate_model.fit(
+            train_X,
+            train_Y,
+            val=[test_X, test_Y],
+            lrate=lrate,
+            batch_size=batch_size,
+            nepochs=nepochs,
+            loss_fn=loss,
+            gradcheck=False,
+            freq_out=100,
+            eigenratio=tch(eigenratio),
+        )
 
     return surrogate_model
 
@@ -227,12 +256,9 @@ class MLPBase(torch.nn.Module):
 
         self.history = []
         fepochs = 0
+        nsubepochs = len(range(0, ntrn, batch_size))
         for t in range(nepochs):
             permutation = torch.randperm(ntrn)
-            # print(permutation)
-            # for parameter in model.parameters():
-            #     print(parameter)
-            nsubepochs = len(range(0, ntrn, batch_size))
             for i in range(0, ntrn, batch_size):
                 indices = permutation[i : i + batch_size]
                 ytrn_pred = self.forward(xtrn_[indices, :])
