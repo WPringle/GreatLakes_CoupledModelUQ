@@ -1,4 +1,21 @@
-import numpy as np
+from numpy import (
+    stack,
+    vstack,
+    random,
+    round,
+    sum,
+    var,
+    sqrt,
+    zeros,
+    mean,
+    argsort,
+    nanmean,
+    array,
+    empty,
+    arange,
+    nan_to_num,
+    dot,
+)
 import matplotlib.pyplot as plt
 from wrf_fvcom.variables import PerturbedVariable, VariableDistribution
 from surrogate.utils import surrogate_model_predict
@@ -39,20 +56,20 @@ class sobol(smethod):
     def sample(self, ninit, parameter_types=None):
         print('Sampling SOBOL')
 
-        sam1 = np.random.rand(ninit, self.dim)
-        sam2 = np.random.rand(ninit, self.dim)
+        sam1 = random.rand(ninit, self.dim)
+        sam2 = random.rand(ninit, self.dim)
 
         for pp, par_type in enumerate(self.ptypes):
             if par_type == 'int':
-                sam1[:, pp] = np.round(sam1[:, pp])
-                sam2[:, pp] = np.round(sam2[:, pp])
+                sam1[:, pp] = round(sam1[:, pp])
+                sam2[:, pp] = round(sam2[:, pp])
 
-        xsam = np.vstack((sam1, sam2))
+        xsam = vstack((sam1, sam2))
 
         for id in range(self.dim):
             samid = sam1.copy()
             samid[:, id] = sam2[:, id]
-            xsam = np.vstack((xsam, samid))
+            xsam = vstack((xsam, samid))
 
         self.nsam = xsam.shape[0]
         self.sens_ready['main'] = True
@@ -64,21 +81,21 @@ class sobol(smethod):
     def compute(self, ysam, computepar=None):
         ninit = self.nsam // (self.dim + 2)
         y1 = ysam[ninit : 2 * ninit]
-        var = np.var(ysam[: 2 * ninit])
-        si = np.zeros((self.dim,))
-        ti = np.zeros((self.dim,))
-        jtij = np.zeros((self.dim, self.dim))
+        yvar = var(ysam[: 2 * ninit])
+        si = zeros((self.dim,))
+        ti = zeros((self.dim,))
+        jtij = zeros((self.dim, self.dim))
 
         for id in range(self.dim):
             y2 = ysam[2 * ninit + id * ninit : 2 * ninit + (id + 1) * ninit] - ysam[:ninit]
-            si[id] = np.mean(y1 * y2) / var
-            ti[id] = 0.5 * np.mean(y2 * y2) / var
+            si[id] = mean(y1 * y2) / yvar
+            ti[id] = 0.5 * mean(y2 * y2) / yvar
             for jd in range(id):
                 y3 = (
                     ysam[2 * ninit + id * ninit : 2 * ninit + (id + 1) * ninit]
                     - ysam[2 * ninit + jd * ninit : 2 * ninit + (jd + 1) * ninit]
                 )
-                jtij[id, jd] = ti[id] + ti[jd] - 0.5 * np.mean(y3 * y3) / var
+                jtij[id, jd] = ti[id] + ti[jd] - 0.5 * mean(y3 * y3) / yvar
 
         self.sens['main'] = si
         self.sens['total'] = ti
@@ -87,7 +104,25 @@ class sobol(smethod):
         return self.sens
 
 
-def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000):
+def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000, kl_dict=None):
+    # for optional transformation of outputs prior to sensitivity sampling
+    def inverse_kl(eigenmodes, eigenvalues, samples, mean_vector):
+        neig = eigenvalues.shape[0]
+        y_out = sum(
+            stack(
+                [
+                    dot(
+                        (samples * sqrt(eigenvalues))[:, mode_index, None],
+                        eigenmodes[None, mode_index, :],
+                    )
+                    for mode_index in range(neig)
+                ],
+                axis=0,
+            ),
+            axis=0,
+        )
+        y_out += mean_vector
+        return y_out
 
     # get the sensitivity sample matrix
     SensMethod = sobol(variable_matrix)
@@ -95,6 +130,10 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000):
     # evaluate the surrogate model at the samples
     ysam = surrogate_model_predict(surrogate_model, xsam)
 
+    if kl_dict is not None:
+        ysam = inverse_kl(
+            kl_dict['eigenmodes'], kl_dict['eigenvalues'], ysam, kl_dict['mean_vector'],
+        )
     npts = ysam.shape[1]
     variable_names = []
     variable_prior = ''
@@ -105,8 +144,8 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000):
         variable_prior = variable_name
     ndim = len(variable_names)
     sens_dict = {
-        'main': np.zeros((npts, ndim)),
-        'total': np.zeros((npts, ndim)),
+        'main': zeros((npts, ndim)),
+        'total': zeros((npts, ndim)),
         'variable_names': variable_names,
     }
     for i in range(npts):
@@ -121,7 +160,7 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000):
             sens_dict['main'][i, vdx] += sens['main'][sdx]
             sens_dict['total'][i, vdx] += sens['total'][sdx]
 
-    return sens_dict
+    return sens_dict, ysam.min(axis=0), ysam.max(axis=0)
 
 
 def plot_sens(
@@ -193,9 +232,9 @@ def plot_sens(
     ncases_ = len(cases)
 
     if senssort:
-        sensind = np.argsort(np.nanmean(sensdata, axis=0))[::-1]
+        sensind = argsort(nanmean(sensdata, axis=0))[::-1]
     else:
-        sensind = np.arange(npar_)
+        sensind = arange(npar_)
 
     if topsens == []:
         topsens = npar_
@@ -214,7 +253,7 @@ def plot_sens(
 
     if xdatatick == []:
         xflag = False
-        xdatatick = np.array(range(1, ncases_ + 1))
+        xdatatick = array(range(1, ncases_ + 1))
         sc = 1.0
     else:
         xflag = True
@@ -230,7 +269,7 @@ def plot_sens(
                 label=par_labels[pars[i]],
             )
     elif vis == 'bar':
-        curr = np.zeros((ncases_))
+        curr = zeros((ncases_))
         # print pars,colors
         for i in range(npar_):
             plt.bar(
@@ -241,11 +280,11 @@ def plot_sens(
                 bottom=curr,
                 label=par_labels[pars[i]],
             )
-            curr = np.nan_to_num(sensdata[cases, i]) + curr
+            curr = nan_to_num(sensdata[cases, i]) + curr
 
         if not xflag:
             plt.xticks(
-                np.array(range(1, ncases_ + 1)), case_labels_, rotation=xticklabel_rotation
+                array(range(1, ncases_ + 1)), case_labels_, rotation=xticklabel_rotation
             )
 
         plt.xlim(xdatatick[0] - wd * sc / 2.0 - 0.1, xdatatick[-1] + wd * sc / 2.0 + 0.1)
@@ -259,9 +298,9 @@ def plot_sens(
 
     maxsens = max(curr.max(), 1.0)
     if ylim_max is None:
-       plt.ylim([0, maxsens])
+        plt.ylim([0, maxsens])
     else:
-       plt.ylim([0, ylim_max])
+        plt.ylim([0, ylim_max])
 
     handles, labels = plt.gca().get_legend_handles_labels()
     handles = [handles[i] for i in sensind[:topsens]]
@@ -313,7 +352,7 @@ def set_colors(npar):
     pp = 1 + int(npar / 6)
     for i in range(npar):
         c = 1 - float(int((i / 6)) / pp)
-        b = np.empty((3))
+        b = empty((3))
         for jj in range(3):
             b[jj] = c * int(i % 3 == jj)
         a = int(int(i % 6) / 3)
