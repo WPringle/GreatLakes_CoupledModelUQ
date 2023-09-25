@@ -56,7 +56,7 @@ def make_nn_surrogate_model(
         if cv == 'LOO':
             cv = LeaveOneOut()
         elif cv == 'KFold':
-            cv = KFold()
+            cv = KFold(shuffle=True,random_state=seed)
         surrogate_model = []  # [MLP(ndim, neig, layers)] * cv.get_n_splits(train_X)
         for i, (train_indices, test_indices) in enumerate(cv.split(train_X)):
             print(f'Fold {i}:')
