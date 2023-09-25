@@ -3,6 +3,26 @@ from numpoly import ndpoly
 # from numpy import empty
 
 
+# for optional transformation of outputs prior to sensitivity sampling
+def inverse_kl(eigenmodes, eigenvalues, samples, mean_vector):
+    neig = eigenvalues.shape[0]
+    y_out = sum(
+        stack(
+            [
+                dot(
+                    (samples * sqrt(eigenvalues))[:, mode_index, None],
+                    eigenmodes[None, mode_index, :],
+                )
+                for mode_index in range(neig)
+            ],
+            axis=0,
+        ),
+        axis=0,
+    )
+    y_out += mean_vector
+    return y_out
+
+
 def surrogate_model_predict(surrogate_model, X_values, kl_dict=None):
     if type(surrogate_model) is ndpoly:
         Y_values = surrogate_model(*X_values.T).T
@@ -25,23 +45,3 @@ def surrogate_model_predict(surrogate_model, X_values, kl_dict=None):
         )
 
     return Y_values
-
-
-# for optional transformation of outputs prior to sensitivity sampling
-def inverse_kl(eigenmodes, eigenvalues, samples, mean_vector):
-    neig = eigenvalues.shape[0]
-    y_out = sum(
-        stack(
-            [
-                dot(
-                    (samples * sqrt(eigenvalues))[:, mode_index, None],
-                    eigenmodes[None, mode_index, :],
-                )
-                for mode_index in range(neig)
-            ],
-            axis=0,
-        ),
-        axis=0,
-    )
-    y_out += mean_vector
-    return y_out
