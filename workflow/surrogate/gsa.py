@@ -105,35 +105,13 @@ class sobol(smethod):
 
 
 def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000, kl_dict=None):
-    # for optional transformation of outputs prior to sensitivity sampling
-    def inverse_kl(eigenmodes, eigenvalues, samples, mean_vector):
-        neig = eigenvalues.shape[0]
-        y_out = sum(
-            stack(
-                [
-                    dot(
-                        (samples * sqrt(eigenvalues))[:, mode_index, None],
-                        eigenmodes[None, mode_index, :],
-                    )
-                    for mode_index in range(neig)
-                ],
-                axis=0,
-            ),
-            axis=0,
-        )
-        y_out += mean_vector
-        return y_out
 
     # get the sensitivity sample matrix
     SensMethod = sobol(variable_matrix)
     xsam = SensMethod.sample(sample_size)
     # evaluate the surrogate model at the samples
-    ysam = surrogate_model_predict(surrogate_model, xsam)
+    ysam = surrogate_model_predict(surrogate_model, xsam, kl_dict=kl_dict)
 
-    if kl_dict is not None:
-        ysam = inverse_kl(
-            kl_dict['eigenmodes'], kl_dict['eigenvalues'], ysam, kl_dict['mean_vector'],
-        )
     npts = ysam.shape[1]
     variable_names = []
     variable_prior = ''
