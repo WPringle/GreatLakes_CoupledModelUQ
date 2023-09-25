@@ -1,11 +1,8 @@
 from numpy import (
-    stack,
     vstack,
     random,
     round,
-    sum,
     var,
-    sqrt,
     zeros,
     mean,
     argsort,
@@ -14,7 +11,6 @@ from numpy import (
     empty,
     arange,
     nan_to_num,
-    dot,
 )
 import matplotlib.pyplot as plt
 from wrf_fvcom.variables import PerturbedVariable, VariableDistribution

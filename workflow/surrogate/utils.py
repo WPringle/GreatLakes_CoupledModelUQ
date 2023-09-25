@@ -1,4 +1,10 @@
 from numpoly import ndpoly
+from numpy import (
+    stack,
+    sum,
+    sqrt,
+    dot,
+)
 
 # from numpy import empty
 
