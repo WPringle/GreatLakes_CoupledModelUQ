@@ -134,7 +134,7 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000, k
             sens_dict['main'][i, vdx] += sens['main'][sdx]
             sens_dict['total'][i, vdx] += sens['total'][sdx]
 
-    return sens_dict, ysam.min(axis=0), ysam.max(axis=0)
+    return sens_dict, ysam
 
 
 def plot_sens(

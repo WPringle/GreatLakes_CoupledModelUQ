@@ -12,6 +12,8 @@ from numpy import (
 # for optional transformation of outputs prior to sensitivity sampling
 def inverse_kl(eigenmodes, eigenvalues, samples, mean_vector):
     neig = eigenvalues.shape[0]
+    if samples.ndim == 1:
+       samples = samples.reshape(1,-1)
     y_out = sum(
         stack(
             [
