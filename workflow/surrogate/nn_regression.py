@@ -2,7 +2,6 @@ import copy
 import torch
 import matplotlib.pyplot as plt
 from numpy import setdiff1d
-from sklearn.model_selection import LeaveOneOut, KFold
 
 torch.set_default_dtype(torch.double)
 
@@ -48,15 +47,12 @@ def make_nn_surrogate_model(
 
     if neurons_per_layer == None:
         neurons_per_layer = int((ndim + neig) / 2) + 1
+        print(f'Using {neurons_per_layer} neurons')
 
     layers = [neurons_per_layer] * num_hidden_layers
     surrogate_model = MLP(ndim, neig, layers)
 
     if cv is not None:
-        if cv == 'LOO':
-            cv = LeaveOneOut()
-        elif cv == 'KFold':
-            cv = KFold(shuffle=True, random_state=seed)
         surrogate_model = []  # [MLP(ndim, neig, layers)] * cv.get_n_splits(train_X)
         for i, (train_indices, test_indices) in enumerate(cv.split(train_X)):
             print(f'Fold {i}:')
