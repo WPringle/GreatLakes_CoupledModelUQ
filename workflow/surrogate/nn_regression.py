@@ -30,6 +30,8 @@ def make_nn_surrogate_model(
     batch_size: int = None,
     nepochs: int = 2000,
     seed: int = None,
+    freq_out: int = 100,
+    freq_plot: int = 1000,
 ):
 
     if seed is not None:
@@ -68,7 +70,8 @@ def make_nn_surrogate_model(
                 nepochs=nepochs,
                 loss_fn=loss,
                 gradcheck=False,
-                freq_out=100,
+                freq_out=freq_out,
+                freq_plot=freq_plot,
                 eigenratio=tch(eigenratio),
             )
 
@@ -83,7 +86,8 @@ def make_nn_surrogate_model(
             nepochs=nepochs,
             loss_fn=loss,
             gradcheck=False,
-            freq_out=100,
+            freq_out=freq_out,
+            freq_plot=freq_plot,
             eigenratio=tch(eigenratio),
         )
 
