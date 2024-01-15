@@ -42,7 +42,7 @@ def make_pc_surrogate_model(
     if regressor == 'Lasso':
         reg = LassoCV(fit_intercept=False, cv=cv)
     elif regressor == 'ElasticNet':
-        reg = ElasticNetCV(fit_intercept=False, cv=cv)
+        reg = ElasticNetCV(fit_intercept=False, cv=cv, l1_ratio=[.1, .5, .7, .9, .95, 1])
     elif regressor == 'Lars':
         reg = LassoLarsCV(fit_intercept=False, cv=cv)
         # reg = Lars(fit_intercept=False, n_nonzero_coefs=cv)
