@@ -22,10 +22,10 @@ def make_nn_surrogate_model(
     test_Y=None,
     cv=None,
     eigenratio=1.0,
-    num_hidden_layers: int = 1,
-    neurons_per_layer: int = None,
+    hidden_layers: int = None,
     dropout: float = 0.0,
     loss: str = 'mse',
+    activ: str = 'relu',
     lrate: float = 0.001,
     batch_size: int = None,
     nepochs: int = 2000,
@@ -48,11 +48,11 @@ def make_nn_surrogate_model(
     nens1_, neig = test_Y.shape
     assert nens1 == nens1_
 
-    if neurons_per_layer == None:
+    if hidden_layers == None:
         neurons_per_layer = int((ndim + neig) / 2) + 1
-    print(f'Using {neurons_per_layer} neurons')
+        hidden_layers = [neurons_per_layer]
 
-    layers = [neurons_per_layer] * num_hidden_layers
+    print(f'Using {hidden_layers} hidden layer structure')
 
     if cv is not None:
         surrogate_model = []  # [MLP(ndim, neig, layers)] * cv.get_n_splits(train_X)
@@ -60,7 +60,9 @@ def make_nn_surrogate_model(
             print(f'Fold {i}:')
             print(f'  Train: index={train_indices}')
             print(f'  Test:  index={test_indices}')
-            surrogate_model.append(MLP(ndim, neig, layers, dropout=dropout))
+            surrogate_model.append(
+                MLP(ndim, neig, hidden_layers, dropout=dropout, activ=activ, bnorm=False)
+            )
             results = surrogate_model[i].fit(
                 train_X[train_indices, :],
                 train_Y[train_indices, :],
@@ -76,7 +78,9 @@ def make_nn_surrogate_model(
             )
 
     else:
-        surrogate_model = MLP(ndim, neig, layers, dropout=dropout)
+        surrogate_model = MLP(
+            ndim, neig, hidden_layers, dropout=dropout, activ=activ, bnorm=False
+        )
         results = surrogate_model.fit(
             train_X,
             train_Y,
@@ -204,6 +208,10 @@ class MLPBase(torch.nn.Module):
                 # loss = torch.nn.MSELoss(reduction='mean')
                 # so we can sum by eigenvalues..
                 loss = torch.nn.MSELoss(reduction='none')
+            elif loss_fn == 'mae':
+                loss = torch.nn.L1Loss(reduction='none')
+            elif loss_fn == 'huber':
+                loss = torch.nn.HuberLoss(reduction='none')
             else:
                 print(f'Loss function {loss_fn} is unknown. Exiting.')
                 sys.exit()
@@ -513,6 +521,18 @@ class MLP(MLPBase):
             activ_fcn = torch.nn.Tanh()
         elif activ == 'relu':
             activ_fcn = torch.nn.ReLU()
+        elif activ == 'rrelu':
+            activ_fcn = torch.nn.RReLU()
+        elif activ == 'gelu':
+            activ_fcn = torch.nn.GELU()
+        elif activ == 'selu':
+            activ_fcn = torch.nn.SELU()
+        elif activ == 'softplus':
+            activ_fcn = torch.nn.Softplus()
+        elif activ == 'softshrink':
+            activ_fcn = torch.nn.Softshrink()
+        elif activ == 'sigmoid':
+            activ_fcn = torch.nn.Sigmoid()
         elif activ == 'sin':
             activ_fcn = Sine()
         else:
