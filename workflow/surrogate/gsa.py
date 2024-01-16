@@ -123,7 +123,7 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000, k
         'variable_names': variable_names,
     }
     for i in range(npts):
-        sens = SensMethod.compute(ysam[:, i])
+        sens = SensMethod.compute(ysam[:, i] - ysam[:,i].mean())
         vdx = -1
         variable_prior = ''
         for sdx, scheme in enumerate(variable_matrix['scheme']):
