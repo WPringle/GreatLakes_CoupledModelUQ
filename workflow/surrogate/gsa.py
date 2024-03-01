@@ -120,6 +120,7 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000, k
     sens_dict = {
         'main': zeros((npts, ndim)),
         'total': zeros((npts, ndim)),
+        'jointt': zeros((npts, ndim, ndim)),
         'variable_names': variable_names,
     }
     for i in range(npts):
@@ -133,6 +134,15 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000, k
             variable_prior = variable_name
             sens_dict['main'][i, vdx] += sens['main'][sdx]
             sens_dict['total'][i, vdx] += sens['total'][sdx]
+            # go in one loop further for joint sensitivities
+            vdxx = -1
+            variable_priorr = ''
+            for sdxx, schemee in enumerate(variable_matrix['scheme']):
+                variable_namee = PerturbedVariable.class_from_scheme_name(schemee).name
+                if variable_namee != variable_priorr:
+                    vdxx += 1
+                variable_priorr = variable_namee
+                sens_dict['jointt'][i, vdx, vdxx] += sens['jointt'][sdx, sdxx]
 
     return sens_dict, ysam
 
