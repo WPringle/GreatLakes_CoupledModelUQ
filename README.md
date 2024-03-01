@@ -36,13 +36,14 @@ Pringle W. J. (2024, March XX). Great Lakes WRF-FVCOM model ensemble outputs: Su
 | Script Name | Description | How to Run |
 | --- | --- | --- |
 | `make_perturbations.py` | generate the configuration matrix for the training ensemble | `python3 make_perturbations.py` |
-3. Setup directories for each ensemble member and WRF `namelist` and FVCOM `run.nml`  with the physics options specified in the output from Step 2. Use initial/boundary conditions from [ERA5](http://doi.org/10.24381/cds.adbb2d47) for the time period 05/12/2018 to 08/31/2018. Execute runs. 
+3. Setup directories for each ensemble member and WRF `namelist.input` and FVCOM `run.nml`  with the physics options specified in the output from Step 2. Use initial/boundary conditions from [ERA5](http://doi.org/10.24381/cds.adbb2d47) for the time period 05/12/2018 00:00 UTC to 09/01/2018 00:00 UTC. Execute runs. 
 4. Run the following Juptyer notebook scripts in the `workflow` directory to postprocess the WRF-FVCOM model output data:
 
-| Script Name | Description | How to Run |
-| --- | --- | --- |
-| `step_one.py` | Script to run the first part of my experiment | `python3 step_one.py -f /path/to/inputdata/file_one.csv` |
-| `step_two.py` | Script to run the last part of my experiment | `python3 step_two.py -o /path/to/my/outputdir` |
+| Script Name | Description | 
+| --- | --- | 
+| `process_WRF+FVCOM_global_daily_temperature_timeseries.ipynb` | Script to postprocess WRF+FVCOM ensemble outputs into daily surface temperature timeseries |
+
+
 
 ## Reproduce my analysis and figures
 - Follow the steps to [reproduce the experiment](#reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](#data-reference) from my experiment.
