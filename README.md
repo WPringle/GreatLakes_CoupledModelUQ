@@ -49,8 +49,15 @@ Pringle W. J. (2024, March XX). Great Lakes WRF-FVCOM model ensemble outputs: Su
 - Follow the steps to [reproduce the experiment](#reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](#data-reference) from my experiment.
 - Run the following Juptyer notebook scripts found in the `workflow` directory to reproduce the analysis and figures from the publication.
 
-| Script Name | Description | How to Run |
+| Order | Script Name | Description | 
 | --- | --- | --- |
-| `compare.py` | Script to compare my outputs to the original | `python3 compare.py --orig /path/to/original/data.csv --new /path/to/new/data.csv` |
+| 1 | `plot_domain.ipynb` | Script to compare my outputs to the original |
+| 2a | `daily_LST_surrogate_analysis.ipynb` | Script to compare my outputs to the original |
+| 2b | `daily_T2_surrogate_analysis.ipynb` | Script to compare my outputs to the original |
+| 3 | `summary_global_sensitivity_analysis.ipynb` | Script to compare my outputs to the original |
+| 4 | `spatial_variation_global_sensitivity_analysis.ipynb` | Script to compare my outputs to the original |
+| 5 | `spatial_variation_global_sensitivity_analysis.ipynb` | Script to compare my outputs to the original |
+
+
 
 
