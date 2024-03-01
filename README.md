@@ -45,7 +45,7 @@ Pringle W. J. (2024, March XX). Great Lakes WRF-FVCOM model ensemble outputs: Su
 | `step_two.py` | Script to run the last part of my experiment | `python3 step_two.py -o /path/to/my/outputdir` |
 
 ## Reproduce my analysis and figures
-- Follow the steps to [reproduce the experiment](reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](#data-reference) from my experiment.
+- Follow the steps to [reproduce the experiment](#reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](#data-reference) from my experiment.
 - Run the following Juptyer notebook scripts found in the `workflow` directory to reproduce the analysis and figures from the publication.
 
 | Script Name | Description | How to Run |
