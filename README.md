@@ -2,6 +2,10 @@ _your zenodo badge here_
 
 # Pringle-etal_2024_JAMES
 
+<p align="center">
+  <a href="https://compass.pnnl.gov/GLM/COMPASSGLM"><img alt="GreatLakesUQ" src="figures/overall_sensitivities_w_interactions.png" width="75%"></a>
+</p>
+
 **Coupled Lake-Atmosphere-Land Parametric Uncertainties in a Great Lakes Regional Climate Model**
 
 William Pringle<sup>1\*</sup> and [COMPASS-GLM Team 1](https://compass.pnnl.gov/GLM/Team)
