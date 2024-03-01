@@ -31,11 +31,11 @@ Pringle W. J. (2024, March XX). Great Lakes WRF-FVCOM model ensemble outputs: Su
 
 ## Reproduce my experiment
 1. Install the software components required to conduct the experiment from [Contributing modeling software](#contributing-modeling-software)
-2. Run the following script in the `workflow` directory to re-create the input configuration matrix for the training ensemble:
+2. Run the following script in the `workflow` directory to re-create the input configuration matrix:
    
 | Script Name | Description | How to Run |
 | --- | --- | --- |
-| `make_perturbations.py` | preprocessing step before WRF-FVCOM model runs | `python3 make_perturbations.py` |
+| `make_perturbations.py` | generate the configuration matrix for the training ensemble | `python3 make_perturbations.py` |
 3. Setup directories for each ensemble member and WRF `namelist` and FVCOM `run.nml`  with the physics options specified in the output from Step 2. Use initial/boundary conditions from [ERA5](http://doi.org/10.24381/cds.adbb2d47) for the time period 05/12/2018 to 08/31/2018. Execute runs. 
 4. Run the following Juptyer notebook scripts in the `workflow` directory to postprocess the WRF-FVCOM model output data:
 
