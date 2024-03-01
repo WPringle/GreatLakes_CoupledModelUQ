@@ -30,25 +30,26 @@ Pringle W. J. (2024, March XX). Great Lakes WRF-FVCOM model ensemble outputs: Su
 
 
 ## Reproduce my experiment
-1. Install the software components required to conduct the experiement from [Contributing modeling software](#contributing-modeling-software)
-2. Download and install the supporting input data required to conduct the experiement from [Input data](#input-data)
-3. Run the following scripts in the `workflow` directory to re-create this experiment:
+1. Install the software components required to conduct the experiment from [Contributing modeling software](#contributing-modeling-software)
+2. Run the following script in the `workflow` directory to re-create the input configuration matrix for the training ensemble:
+   
+| Script Name | Description | How to Run |
+| --- | --- | --- |
+| `make_perturbations.py` | preprocessing step before WRF-FVCOM model runs | `python3 make_perturbations.py` |
+3. Setup directories for each ensemble member and WRF `namelist` and FVCOM `run.nml`  with the physics options specified in the output from Step 2. Use initial/boundary conditions from [ERA5](http://doi.org/10.24381/cds.adbb2d47) for the time period 05/12/2018 to 08/31/2018. Execute runs. 
+4. Run the following Juptyer notebook scripts in the `workflow` directory to postprocess the WRF-FVCOM model output data:
 
 | Script Name | Description | How to Run |
 | --- | --- | --- |
 | `step_one.py` | Script to run the first part of my experiment | `python3 step_one.py -f /path/to/inputdata/file_one.csv` |
 | `step_two.py` | Script to run the last part of my experiment | `python3 step_two.py -o /path/to/my/outputdir` |
 
-4. Download and unzip the output data from my experiment [Output data](#output-data)
-5. Run the following scripts in the `workflow` directory to compare my outputs to those from the publication
+## Reproduce my analysis and figures
+- Follow the steps to [reproduce the experiment](reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](#data-reference) from my experiment.
+- Run the following Juptyer notebook scripts found in the `workflow` directory to reproduce the analysis and figures from the publication.
 
 | Script Name | Description | How to Run |
 | --- | --- | --- |
 | `compare.py` | Script to compare my outputs to the original | `python3 compare.py --orig /path/to/original/data.csv --new /path/to/new/data.csv` |
 
-## Reproduce my figures
-Use the scripts found in the `figures` directory to reproduce the figures used in this publication.
 
-| Script Name | Description | How to Run |
-| --- | --- | --- |
-| `generate_figures.py` | Script to generate my figures | `python3 generate_figures.py -i /path/to/inputs -o /path/to/outuptdir` |
