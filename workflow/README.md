@@ -1,7 +1,7 @@
 # Scripts and Instructions for Recreating Experiment
 
 ## Details on generating input configuration matrix (Step 2)
-Running `make_perturbations.py` will generate the perturbation matrix for all variables (there are 9) using a Korobov sequence with 18 samples which samples 89.5% of the range of each variable. Values for each perturbation are output into a netCDF file. This is the same idea as in Pringle et al. (2022)
+Running `make_perturbations.py` will generate the perturbation matrix for all variables (there are 9) using a Korobov sequence with 18 samples which samples 89.5% of the range of each variable. Values for each perturbation are output into a netCDF file. This is the same idea as in Pringle et al. (2023)
 
 One may view each variable and available options inside `wrf_fvcom/variables`. 
 
