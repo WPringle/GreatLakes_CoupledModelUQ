@@ -1,7 +1,7 @@
 # Scripts and Instructions for Recreating Experiment and Analysis
 
 ## Reproduce my experiment
-1. Install the software components required to conduct the experiment from [Contributing modeling software](#contributing-modeling-software)
+1. Install the software components required to conduct the experiment from [Contributing modeling software](../README.md#contributing-modeling-software)
 2. Run the following script in the `workflow` directory to re-create the input configuration matrix (also see [details](#details-on-generating-input-configuration-matrix)):
    
 | Script Name | Description | How to Run |
@@ -17,7 +17,7 @@
 
 
 ## Reproduce my analysis and figures
-- Follow the steps to [reproduce the experiment](#reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](#data-reference) from my experiment.
+- Follow the steps to [reproduce the experiment](#reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](../README.md#data-reference) from my experiment.
 - Run the following Juptyer notebook scripts found in the `workflow` directory to reproduce the analysis and figures from the publication.
 
 | Order | Script Name | Description | 
