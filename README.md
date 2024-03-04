@@ -8,9 +8,10 @@ _your zenodo badge here_
 
 **Coupled Lake-Atmosphere-Land Parametric Uncertainties in a Great Lakes Regional Climate Model**
 
-William Pringle<sup>1\*</sup> and [COMPASS-GLM Team 1](https://compass.pnnl.gov/GLM/Team)
+William Pringle<sup>1\*</sup>, Khachik Sargysan<sup>2</sup> and [COMPASS-GLM Team 1](https://compass.pnnl.gov/GLM/Team)
 
 <sup>1 </sup> Environmental Science Division, Argonne National Laboratory, Lemont, IL, USA
+<sup>2 </sup> Sandia National Laboratories, Livermore, California, USA
 
 \* corresponding author:  wpringle@anl.gov
 
