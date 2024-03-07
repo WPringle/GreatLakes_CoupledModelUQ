@@ -142,7 +142,11 @@ def compute_sensitivities(surrogate_model, variable_matrix, sample_size=10000, k
                 if variable_namee != variable_priorr:
                     vdxx += 1
                 variable_priorr = variable_namee
-                sens_dict['jointt'][i, vdx, vdxx] += sens['jointt'][sdx, sdxx]
+                if vdx == vdxx: # add internal parameterizations interactions to main effect
+                   sens_dict['main'][i, vdx] += sens['jointt'][sdx, sdxx]
+                else:
+                   sens_dict['jointt'][i, vdx, vdxx] += sens['jointt'][sdx, sdxx]
+
 
     return sens_dict, ysam
 
