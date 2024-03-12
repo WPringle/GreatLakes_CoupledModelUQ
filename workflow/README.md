@@ -17,7 +17,7 @@
 
 
 ## Reproduce my analysis and figures
-- Follow the steps to [reproduce the experiment](#reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](../README.md#data-reference) from my experiment.
+- Follow the steps to [reproduce the experiment](#reproduce-my-experiment) (Steps 1 & 3 are not trivial) --OR-- download the postprocessed output [data](../README.md#data-reference) from my experiment and place into `output` directory.
 - Run the following Juptyer notebook scripts found in the `workflow` directory to reproduce the analysis and figures from the publication.
 
 | Order | Script Name | Description | 
