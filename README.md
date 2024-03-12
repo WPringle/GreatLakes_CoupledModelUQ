@@ -22,10 +22,10 @@ In this paper the authors develop a long-term global energy-economic model which
 Pringle, W. J., Huang, C., Xue, P., Wang, J., Sargsyan K., Kayastha, M., Chakraborty, T. C., Yang, Z., Qian Y., Hetland, R. D. (2024). Coupled Lake-Atmosphere-Land Physics Uncertainties in a Great Lakes Regional Climate Model. Submitted to Journal of Advances in Modeling Earth Systems, ESSOAr DOI to add.
 
 ## Code reference
-Pringle W. J. (2024, March 11). Project/repo:v1.0 (Version v0.0). [Zenodo](http://doi.org/some-doi-number/zenodo.7777777).
+Pringle W. J. (2024, March 11). Project/repo:v1.0 (Version v0.1). [Zenodo](http://doi.org/some-doi-number/zenodo.7777777).
 
 ## Data reference
-Pringle W. J. (2024, March 11). Great Lakes WRF-FVCOM model ensemble outputs: Summer 2018 daily LST and T2m (v0.1) [Dataset]. [Zenodo](http://doi.org/10.5281/zenodo.10806629)
+Pringle W. J. (2024, March 11). Great Lakes WRF-FVCOM model ensemble outputs: Summer 2018 daily LST and T2m (Version v0.1) [Dataset]. [Zenodo](http://doi.org/10.5281/zenodo.10806629)
 
 ## Contributing modeling software
 | Model | Version | Author-Year | DOI |
